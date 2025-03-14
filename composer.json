@@ -7,9 +7,6 @@
         "stichoza/google-translate-php": "^5.2",
         "php-di/php-di": "^7.0"
     },
-    "require-dev": {
-        "pestphp/pest": "^3.7"
-    },
     "autoload": {
         "psr-4": {
             "Discord\\Proihibida\\": "src/"
