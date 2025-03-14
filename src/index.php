@@ -30,9 +30,7 @@ if (!R::testConnection()) {
 
 $discord = new bot([
     'token' => $token,
-    'intents' => [Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT],
-    'shardId' => 0,
-    'shardCount' => 5
+    'intents' => [Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT]
 ]);
 
 $discord->on('init', function (bot $discord) {
