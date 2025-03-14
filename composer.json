@@ -1,0 +1,24 @@
+{
+    "name": "discord/proihibida",
+    "description": "proihibidagem",
+    "require": {
+        "team-reflex/discord-php": "^10.4",
+        "vlucas/phpdotenv": "^5.6",
+        "stichoza/google-translate-php": "^5.2",
+        "php-di/php-di": "^7.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Discord\\Proihibida\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ErickVerissimoo",
+            "email": "erickverissimodasilva144@gmail.com"
+        }
+    ]
+}
