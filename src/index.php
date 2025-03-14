@@ -19,7 +19,7 @@ use \Dotenv\Dotenv as env;
 $en = env::createImmutable(__DIR__ . '/../');
 $en->safeLoad();
 $token = $_ENV['TOKEN'];
-$bot=$_ENV['DB_NAME'];
+$bot=$_ENV['MYSQL_DATABASE'];
 $user=$_ENV['USER'];
 $password=$_ENV['PASSWORD'];
 $host='mysql';
