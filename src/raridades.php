@@ -47,9 +47,7 @@ $epicos = explode(', ', $epicos);
 $lendarios = explode(', ', $lendarios);
 $miticos = explode(', ', $miticos);
 $locks = explode(', ', $locks);
-
 $container = new Container;
-
 $container->set('comum', $comuns);
 $container->set('raro', $raros);
 $container->set('epico', $epicos);
