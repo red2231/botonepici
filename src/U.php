@@ -33,7 +33,7 @@ class U
         if ($random < 40) {
             $akuma = self::getByRaridade('Comum');
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->tipo} comum");
-            $embed->setColor('#FFC0CB'); // Pink
+            $embed->setColor('#FFC0CB'); 
         } elseif ($random >= 40 && $random < 70) {
             $akuma = self::getByRaridade('Raro');
             $embed->setTitle("Legal! Você conseguiu uma {$akuma->tipo} do tipo raro!");

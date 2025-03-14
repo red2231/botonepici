@@ -22,7 +22,7 @@ $token = $_ENV['TOKEN'];
 $bot=$_ENV['MYSQL_DATABASE'];
 $user=$_ENV['USER'];
 $password=$_ENV['PASSWORD'];
-$host='mysql';
+$host='mysql.railway.internal';
 if (!R::testConnection()) {
     R::setup("mysql:host=$host;dbname=$bot" ,$user, $password);
 }
