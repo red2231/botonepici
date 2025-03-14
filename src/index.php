@@ -22,9 +22,9 @@ $token = $_ENV['TOKEN'];
 $dbName=$_ENV['DB_NAME'];
 $user=$_ENV['USER'];
 $password=$_ENV['PASSWORD'];
-
+$host='mysql';
 if (!R::testConnection()) {
-    R::setup("mysql:host=172.18.0.2;dbname=$bot, $user, $password");
+    R::setup("mysql:host=$host;dbname=$bot" ,$user, $password);
 }
 
 
