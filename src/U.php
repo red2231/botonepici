@@ -67,8 +67,8 @@ class U
 
 public static function getRandomImage(): string
 {
-    $array = ['https://tenor.com/pt-BR/view/luffy-eating-lufy-lufy-kid-kid-luffy-gomu-gomu-no-mi-gif-25221576',
-'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
-return array_rand($array);
-}
-}
+$dois = ['https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif', 'https://static.wikia.nocookie.net/onepiece/images/9/92/Devil_Fruit_Infobox.png/revision/latest?cb=20181223211425&path-prefix=pt',
+ 'https://media1.tenor.com/m/5k-buzEolw8AAAAC/luffy-eating-lufy.gif'];
+
+return array_rand($dois);
+}}
