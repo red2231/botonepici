@@ -19,6 +19,6 @@ COPY . .
 
 RUN chown -R www-data:www-data /var/www/html
 
-RUN composer install
+COPY ./vendor ./vendor
 
 CMD ["php", "./src/index.php"]
