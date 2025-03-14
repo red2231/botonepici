@@ -24,12 +24,9 @@ $user=$_ENV['USER'];
 $password=$_ENV['PASSWORD'];
 
 if (!R::testConnection()) {
-    R::setup("mysql:host=172.18.0.2;dbname={$dbName}, {$user}, {$password}");
+    R::setup("mysql:host=172.18.0.2;dbname=$bot, $user, $password");
 }
-// Test database (optional)
-$pessoa = R::dispense('pessoa');
-$pessoa->nome = "erick";
-R::store($pessoa);
+
 
 $discord = new bot([
     'token' => $token,
