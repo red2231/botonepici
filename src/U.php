@@ -52,7 +52,7 @@ class U
             $embed->setColor('#FF0000'); 
         }
 
-        $embed->setImage(self::getRandomImage());
+        $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif');
         $embed->setDescription($akuma->description);
         $embed->setFooter($akuma->name);
 
