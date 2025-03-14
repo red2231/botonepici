@@ -25,6 +25,7 @@ $password=$_ENV['PASSWORD'];
 $host='mysql.railway.internal';
 if (!R::testConnection()) {
     R::setup("mysql:host=$host;dbname=$bot" ,$user, $password);
+    R::setup()
 }
 
 
