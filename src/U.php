@@ -8,6 +8,8 @@ use R;
 
 class U
 {
+    private static $previousAkuma = null;
+
     public static function getSomeAkuma(Discord $discord)
     {
         $random = random_int(0, 100);
@@ -30,19 +32,19 @@ class U
         $random = random_int(0, 100);
         $akuma = '';
 
-        if ($random < 40) {
+        if ($random < 50) {
             $akuma = self::getByRaridade('Comum');
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->tipo} comum");
             $embed->setColor('#FFC0CB'); 
-        } elseif ($random >= 40 && $random < 70) {
+        } elseif ($random >= 50 && $random < 80) {
             $akuma = self::getByRaridade('Raro');
             $embed->setTitle("Legal! Você conseguiu uma {$akuma->tipo} do tipo raro!");
             $embed->setColor('#FFFF00'); 
-        } elseif ($random >= 70 && $random < 88) {
+        } elseif ($random >= 80 && $random < 95) {
             $akuma = self::getByRaridade('Épico');
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->tipo} épica!");
             $embed->setColor('#00FF00'); 
-        } elseif ($random >= 88 && $random < 98) {
+        } elseif ($random >= 95 && $random < 99) {
             $akuma = self::getByRaridade('Lendário');
             $embed->setTitle("Você conseguiu uma {$akuma->tipo} lendária! Incrível!!");
             $embed->setColor('#0000FF'); 
@@ -59,12 +61,26 @@ class U
         return $embed;
     }
 
-    private static function getByRaridade(string $raridade)
+   private static function getByRaridade(string $raridade)
     {
-        return R::findOne('akuma', " raridade = ? ORDER BY RAND()", [$raridade]);
-        
+        $where = 'raridade = ?';
+        $params = [$raridade];
+    
+        if (self::$previousAkuma !== null) {
+            $where .= ' AND id != ?';
+            $params[] = self::$previousAkuma->id;
+        }
+    
+        $akuma = R::findOne('akuma', "$where ORDER BY RAND()", $params);
+    
+        if (!$akuma) {
+            $akuma = R::findOne('akuma', 'raridade = ? ORDER BY RAND()', [$raridade]);
+        }
+    
+        self::$previousAkuma = $akuma;
+    
+        return $akuma;
     }
-
 public static function getRandomImage(): string
 {
 $dois = ['https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif', 'https://static.wikia.nocookie.net/onepiece/images/9/92/Devil_Fruit_Infobox.png/revision/latest?cb=20181223211425&path-prefix=pt',
