@@ -43,7 +43,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) {
     }
     $conteudo = $message->content;
     if (strcasecmp($conteudo, "!akuma")) {
-        $message->channel->sendMessage("<@{$message->author->id}>", U::getSomeAkuma($discord));
+        $message->channel->sendMessage("<@{$message->author->id}>",false, U::getSomeAkuma($discord));
     }
 });
 
