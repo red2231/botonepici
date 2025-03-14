@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY composer.json composer.lock ./
 
 WORKDIR /var/www/html
 
@@ -19,6 +20,6 @@ COPY . .
 
 RUN chown -R www-data:www-data /var/www/html
 
-COPY ./vendor ./vendor
+RUN composer install
 
 CMD ["php", "./src/index.php"]
