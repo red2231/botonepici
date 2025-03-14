@@ -19,10 +19,10 @@ use \Dotenv\Dotenv as env;
 $en = env::createImmutable(__DIR__ . '/../');
 $en->safeLoad();
 $token = $_ENV['TOKEN'];
-$dbName=$_ENV['DB_NAME'];
+$bot=$_ENV['DB_NAME'];
 $user=$_ENV['USER'];
 $password=$_ENV['PASSWORD'];
-$host='mysql';;
+$host='mysql';
 if (!R::testConnection()) {
     R::setup("mysql:host=$host;dbname=$bot" ,$user, $password);
 }
