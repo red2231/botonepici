@@ -32,7 +32,7 @@ function check(string $userId): bool|string {
     if ($now->lessThan($expirationTime)) {
         return $now->diffAsCarbonInterval($expirationTime)
             ->locale('pt_BR')
-            ->forHumans(['parts' => 2]);
+            ->forHumans(['parts' => 3]);
     }
 
     $client->del($userId);
