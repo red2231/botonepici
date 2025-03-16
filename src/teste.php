@@ -11,7 +11,7 @@ $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
 
 
-function check(string $userId){
+function check(string $userId): true|string{
     $client = new Client([
         'host' => 'redis.railway.internal',
         'port' => 6379,
@@ -36,4 +36,5 @@ return true;
     }
     return true;
    }
+   
 
