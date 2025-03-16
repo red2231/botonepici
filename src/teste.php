@@ -11,30 +11,31 @@ $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
 
 
-function check(string $userId): true|string{
+function check(string $userId): bool|string {
     $client = new Client([
         'host' => 'redis.railway.internal',
         'port' => 6379,
         'username' => 'default',
         'password' => 'GFWjLTfOOglzWRJsoRlQmKkFnsOheolO'
     ]);
-    
-    if(!$client->get($userId)){
-        $client->setex($userId, 86400, Carbon::now()->timestamp);
-return true;
-    }
 
     $storedTimestamp = $client->get($userId);
-    
 
+    if (!$storedTimestamp) {
+        $client->setex($userId, 86400, Carbon::now()->timestamp);
+        return true;
+    }
 
     $expirationTime = Carbon::createFromTimestamp($storedTimestamp)->addDay();
     $now = Carbon::now();
 
     if ($now->lessThan($expirationTime)) {
-        return $now->diff($expirationTime)->__toString();
+        return $now->diffAsCarbonInterval($expirationTime)
+            ->locale('pt_BR')
+            ->forHumans(['parts' => 2]);
     }
+
+    $client->del($userId);
     return true;
-   }
-   
+}
 

@@ -60,18 +60,26 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
 
     $conteudo = $message->content;
     $value = check($id);
-    if (strcasecmp($conteudo, "!akuma") ===0 && is_bool($value)) {
-        $message->channel->sendMessage("<@{$message->author->id}>", false, U::getSomeAkuma($discord));
-    } elseif (strcasecmp($conteudo, "!akuma") ===0 && !is_bool($value)){
-        $translate = new GoogleTranslate;
-$translate->setTarget('pt-br');
-$value = $translate->translate($value);
-$embed = new Embed($discord);
-$embed->setTitle("Você é limitado a um uso diário desse comando!");
-$embed->setDescription("Tente novamente em {$value}");
-$embed->setColor(getColor('darkblue'));
 
-        $message->channel->sendMessage("<@{$id}>", false, $embed);
-    }
-});
+    if (strcasecmp(trim($conteudo), "!akuma") === 0) {
+        if ($value === true) {
+            $message->channel->sendMessage(
+                "<@{$message->author->id}>", 
+                false, 
+                U::getSomeAkuma($discord)
+            );
+        } else {
+            $translate = new GoogleTranslate();
+            $translate->setSource('en');
+            $translate->setTarget('pt-br');
+            
+            $embed = new Embed($discord);
+            $embed->setTitle("⏳ Limite de uso diário!");
+            $embed->setDescription("Tente novamente em: " . $translate->translate($value));
+            $embed->setColor(getColor('darkblue'));
+            
+            $message->reply($embed);
+        }
+    }});
+
 $discord->run();
