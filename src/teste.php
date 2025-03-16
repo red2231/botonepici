@@ -8,17 +8,22 @@ require_once __DIR__.'/../vendor/autoload.php';
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 $host = $_ENV['HOST'];
-
+$username = $_ENV['USERNAME'];
+$password = $_ENV['PASSWO'];
 function exists(string $userId):bool|string{
 return (new Client([
     'host' => $GLOBALS['host'],
-    'port' => 6379
+    'port' => 6379,
+    'username' => $GLOBALS['username'],
+    'password' => $GLOBALS['password']
 ]))->exists($userId);
 }
 function check(string $userId){
     $client = new Client([
         'host' => $GLOBALS['host'],
-        'port' => 6379
+        'port' => 6379,
+        'username' => $GLOBALS['username'],
+        'password' => $GLOBALS['password']
     ]);
 
     if(!exists($userId)){
