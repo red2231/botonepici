@@ -78,7 +78,8 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
             $embed->setDescription("Tente novamente em: " . $translate->translate($value));
             $embed->setColor(getColor('darkblue'));
             
-            $message->reply($embed);
+            $message->channel->sendMessage(
+                "<@{$message->author->id}>", false, $embed);
         }
     }});
 
