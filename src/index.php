@@ -62,7 +62,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
     $value = check($id);
     if (strcasecmp($conteudo, "!akuma") ===0 && is_bool($value)) {
         $message->channel->sendMessage("<@{$message->author->id}>", false, U::getSomeAkuma($discord));
-    } elseif (strcasecmp($conteudo, "!akuma") ==0 && !is_bool($value)){
+    } elseif (strcasecmp($conteudo, "!akuma") ===0 && !is_bool($value)){
         $translate = new GoogleTranslate;
 $translate->setTarget('pt-br');
 $value = $translate->translate($value);
