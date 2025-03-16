@@ -7,15 +7,14 @@ use Predis\Client;
 require_once __DIR__.'/../vendor/autoload.php';
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
-$host = 'redis.railway.internal';
 $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
 function exists(string $userId): bool {
     $client = new Client([
-        'host' => $GLOBALS['host'],
+        'host' => 'redis.railway.internal',
         'port' => 6379,
-        'username' => $GLOBALS['username'],
-        'password' => $GLOBALS['password']
+        'username' => 'default',
+        'password' => 'GFWjLTfOOglzWRJsoRlQmKkFnsOheolO'
     ]);
     
     return $client->exists($userId) === 1;
@@ -23,12 +22,12 @@ function exists(string $userId): bool {
 
 function check(string $userId){
     $client = new Client([
-        'host' => $GLOBALS['host'],
+        'host' => 'redis.railway.internal',
         'port' => 6379,
-        'username' => $GLOBALS['username'],
-        'password' => $GLOBALS['password']
+        'username' => 'default',
+        'password' => 'GFWjLTfOOglzWRJsoRlQmKkFnsOheolO'
     ]);
-
+    
     if(!exists($userId)){
         $client->setex($userId, 86400, Carbon::now()->timestamp);
 return true;
