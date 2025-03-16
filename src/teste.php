@@ -10,13 +10,17 @@ $dotenv->safeLoad();
 $host = $_ENV['HOST'];
 $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
-function exists(string $userId):bool|string{
-return (new Client([
-    'host' => $GLOBALS['host'],
-    'port' => 6379,
-    'username' => $GLOBALS['username'],
-    'password' => $GLOBALS['password']
-]))->exists($userId);
+function exists(string $userId): bool {
+    $client = new Client([
+        'host' => $GLOBALS['host'],
+        'port' => 6379,
+        'username' => $GLOBALS['username'],
+        'password' => $GLOBALS['password']
+    ]);
+    
+    return $client->exists($userId) === 1;
+}
+
 }
 function check(string $userId){
     $client = new Client([
@@ -43,7 +47,4 @@ return true;
     }
     return true;
    }
-
-$valor = check('olaaaa');
-var_dump($valor);
 
