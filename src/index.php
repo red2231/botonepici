@@ -26,7 +26,7 @@ $token     = $_ENV['TOKEN'];
 $dbName    = $_ENV['DB_NAME'];  
 $user      = $_ENV['USER'];
 $password  = $_ENV['PASSWORD'];
-$host      = 'localhost';
+$host      = 'mysql.railway.internal';
 
 if (!R::testConnection()) {
     R::setup("mysql:host=$host;dbname=$dbName", $user, $password);
