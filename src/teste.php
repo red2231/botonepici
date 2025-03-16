@@ -7,7 +7,7 @@ use Predis\Client;
 require_once __DIR__.'/../vendor/autoload.php';
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
-$host = $_ENV['HOST'];
+$host = 'redis.railway.internal';
 $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
 function exists(string $userId): bool {
