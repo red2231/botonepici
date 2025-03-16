@@ -7,7 +7,7 @@ use Predis\Client;
 require_once __DIR__.'/../vendor/autoload.php';
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
-$host = $_ENV['host'];
+$host = $_ENV['HOST'];
 
 function exists(string $userId):bool|string{
 return (new Client([
