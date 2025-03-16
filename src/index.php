@@ -20,7 +20,7 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $token     = $_ENV['TOKEN'];
 $dbName    = $_ENV['DB_NAME'];  
