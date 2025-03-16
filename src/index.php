@@ -59,9 +59,10 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
-    $value = check($id);
+ 
 
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
+        $value = check($id);
         if ($value === true) {
             $message->channel->sendMessage(
                 "<@{$message->author->id}>", 
