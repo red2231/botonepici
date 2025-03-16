@@ -21,7 +21,6 @@ function exists(string $userId): bool {
     return $client->exists($userId) === 1;
 }
 
-}
 function check(string $userId){
     $client = new Client([
         'host' => $GLOBALS['host'],
