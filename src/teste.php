@@ -33,7 +33,7 @@ return true;
     if ($now->lessThan($expirationTime)) {
         return $now->diff($expirationTime)->__toString();
     }
-    
+    return true;
    }
 
 $valor = check('olaaaa');
