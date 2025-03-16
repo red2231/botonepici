@@ -9,16 +9,7 @@ $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 $username = $_ENV['USERNAME'];
 $password = $_ENV['PASSWO'];
-function exists(string $userId): bool {
-    $client = new Client([
-        'host' => 'redis.railway.internal',
-        'port' => 6379,
-        'username' => 'default',
-        'password' => 'GFWjLTfOOglzWRJsoRlQmKkFnsOheolO'
-    ]);
-    
-    return $client->exists($userId) === 1;
-}
+
 
 function check(string $userId){
     $client = new Client([
@@ -28,7 +19,7 @@ function check(string $userId){
         'password' => 'GFWjLTfOOglzWRJsoRlQmKkFnsOheolO'
     ]);
     
-    if(!exists($userId)){
+    if(!$client->get($userId)){
         $client->setex($userId, 86400, Carbon::now()->timestamp);
 return true;
     }
