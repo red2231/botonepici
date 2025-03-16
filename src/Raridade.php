@@ -7,4 +7,5 @@ enum Raridade: string
     case EPICO='Épico';
     case LENDARIO='Lendário';
     case MITICO='Mitíco';
+
 }

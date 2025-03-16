@@ -1,10 +1,13 @@
 <?php
 
 namespace Discord\Proibida;
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use R;
+
+use function Discord\getColor;
 
 class U
 {
@@ -13,11 +16,11 @@ class U
     public static function getSomeAkuma(Discord $discord)
     {
         $random = random_int(0, 100);
-
+     
         if ($random < 60) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
-            $embed->setColor('red');
+            $embed->setColor(getColor('red'));
             $embed->setImage("https://images-ext-1.discordapp.net/external/wEpSctfomfaLtMDp4P026MlymnFVwNtWZ_pINl80L3Q/https/i.pinimg.com/originals/3c/5b/0f/3c5b0fb6c0cc6273e25d164d2dc3f1ca.gif");
             $embed->setFooter('Mais sorte da próxima vez!');
             return $embed;
@@ -35,23 +38,23 @@ class U
         if ($random < 50) {
             $akuma = self::getByRaridade('Comum');
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->tipo} comum");
-            $embed->setColor('#FFC0CB'); 
+            $embed->setColor(getColor('blue')); 
         } elseif ($random >= 50 && $random < 80) {
             $akuma = self::getByRaridade('Raro');
             $embed->setTitle("Legal! Você conseguiu uma {$akuma->tipo} do tipo raro!");
-            $embed->setColor('#FFFF00'); 
+            $embed->setColor(getColor('yellow')); 
         } elseif ($random >= 80 && $random < 95) {
             $akuma = self::getByRaridade('Épico');
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->tipo} épica!");
-            $embed->setColor('#00FF00'); 
+            $embed->setColor(getColor('purple')); 
         } elseif ($random >= 95 && $random < 99) {
             $akuma = self::getByRaridade('Lendário');
             $embed->setTitle("Você conseguiu uma {$akuma->tipo} lendária! Incrível!!");
-            $embed->setColor('#0000FF'); 
+            $embed->setColor(getColor('pink')); 
         } else {
             $akuma = self::getByRaridade('Mítico');
             $embed->setTitle("O que!? Você conseguiu uma {$akuma->tipo} mítica?! Onde arranjou isso!?");
-            $embed->setColor('#FF0000'); 
+            $embed->setColor(getColor('gold')); 
         }
 
         $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif');
@@ -81,10 +84,4 @@ class U
     
         return $akuma;
     }
-public static function getRandomImage(): string
-{
-$dois = ['https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif', 'https://static.wikia.nocookie.net/onepiece/images/9/92/Devil_Fruit_Infobox.png/revision/latest?cb=20181223211425&path-prefix=pt',
-];
-
-return array_rand($dois);
-}}
+}
