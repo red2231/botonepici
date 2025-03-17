@@ -43,12 +43,8 @@ $discord->on('init', function (Bot $discord) {
 
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) use (&$processedMessages) {
     $id = $message->author->id;
-
-    if ($message->author->bot) {
-        return;
-    }
- 
-    if (isset($processedMessages[$message->id])) {
+    
+    if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
     if (count($processedMessages) >= 100) {

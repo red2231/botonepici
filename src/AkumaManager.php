@@ -25,7 +25,7 @@ class AkumaManager
             $embed->setFooter('Mais sorte da próxima vez!');
             return $embed;
         } else {
-            return self::getAkuma($discord);
+            return $this->getAkuma($discord);
         }
     }
 
@@ -36,23 +36,23 @@ class AkumaManager
         $akuma = null;
 
         if ($random < 50) {
-            $akuma = self::getByRaridade('Comum');
+            $akuma = $this->getByRaridade('Comum');
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->tipo} comum");
             $embed->setColor(getColor('blue')); 
         } elseif ($random >= 50 && $random < 80) {
-            $akuma = self::getByRaridade('Raro');
+            $akuma = $this->getByRaridade('Raro');
             $embed->setTitle("Legal! Você conseguiu uma {$akuma->tipo} do tipo raro!");
             $embed->setColor(getColor('yellow')); 
         } elseif ($random >= 80 && $random < 95) {
-            $akuma = self::getByRaridade('Épico');
+            $akuma = $this->getByRaridade('Épico');
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->tipo} épica!");
             $embed->setColor(getColor('purple')); 
         } elseif ($random >= 95 && $random < 99) {
-            $akuma = self::getByRaridade('Lendário');
+            $akuma = $this->getByRaridade('Lendário');
             $embed->setTitle("Você conseguiu uma {$akuma->tipo} lendária! Incrível!!");
             $embed->setColor(getColor('pink')); 
         } else {
-            $akuma = self::getByRaridade('Mítico');
+            $akuma = $this->getByRaridade('Mítico');
             $embed->setTitle("O que!? Você conseguiu uma {$akuma->tipo} mítica?! Onde arranjou isso!?");
             $embed->setColor(getColor('gold')); 
         }
@@ -88,6 +88,6 @@ class AkumaManager
     {
         $images= ['https://media1.tenor.com/m/i02LN_VG-N8AAAAd/bara-bara-no-mi.gif',
     'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
-    return array_rand($images);
+    return $images[array_rand($images)];
     }
 }
