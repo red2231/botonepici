@@ -5,24 +5,19 @@ use Random\Randomizer;
  function getAnimalRaridade()
 {
 $value = rand_float(0, 100);
- switch ($value){
-case $value<=50:
-    return "Comum";
-case $value>50 && $value<=80:
-    return "Incomum";
-    case $value<80 && $value<=90:
-        return "Rara";
-        case $value> 90 && $value<=95:
-            return "Épica";
-            case $value> 95 && $value<=99:
-                return "Lendária";
-                case $value>99 && $value<=99.9:
-                    return "Mitíca";
-                    case $value>99.9:
-                        return "Divina";
-                        default: "nada";
+
+    $resultado = match (true) {
+        $value <= 50 => 'Comum',
+        $value <= 80 => 'Incomum',
+        $value <= 90 => 'Rara',
+        $value <= 95 => 'Épica',
+        $value <= 99 => 'Lendária',
+        $value <= 99.9 => 'Mítica',
+        $value > 99.9 => 'Divina',
+    };
+return $resultado;
 }
-}
+
 
 
 function rand_float(int $min, int $max): float{

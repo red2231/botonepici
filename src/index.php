@@ -84,5 +84,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         }
     }
 });
+$discord->on(Event::INTEGRATION_CREATE, function(){
 
+});
 $discord->run();
