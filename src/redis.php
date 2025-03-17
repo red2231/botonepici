@@ -7,16 +7,13 @@ use Predis\Client;
 require_once __DIR__.'/../vendor/autoload.php';
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
-$username = $_ENV['USERNAME']??null;
-$password = $_ENV['PASSWO']??null;
-$host = $_ENV['HOST']??'localhost';
 
 function check(string $userId): bool|string {
     $client = new Client([
-        'host' => $GLOBALS['host'],
+        'host' => $_ENV['HOST']??'localhost',
         'port' => 6379,
-        'username' => $GLOBALS['username'],
-        'password' => $GLOBALS['password']
+        'username' => $_ENV['USERNAME']??null,
+        'password' => $_ENV['PASSWO']??null
     ]);
 
     $storedTimestamp = $client->get($userId);
