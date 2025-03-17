@@ -9,11 +9,11 @@ use R;
 
 use function Discord\getColor;
 
-class U
+class AkumaManager
 {
-    private static $previousAkuma = null;
+    private $previousAkuma = null;
 
-    public static function getSomeAkuma(Discord $discord)
+    public  function getSomeAkuma(Discord $discord)
     {
         $random = random_int(0, 100);
      
@@ -29,11 +29,11 @@ class U
         }
     }
 
-    private static function getAkuma(Discord $discord)
+    private function getAkuma(Discord $discord)
     {
         $embed = new Embed($discord);
         $random = random_int(0, 100);
-        $akuma = '';
+        $akuma = null;
 
         if ($random < 50) {
             $akuma = self::getByRaridade('Comum');
@@ -57,21 +57,21 @@ class U
             $embed->setColor(getColor('gold')); 
         }
 
-        $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif');
+        $embed->setImage($this->getSomeImage());
         $embed->setDescription($akuma->description);
         $embed->setFooter($akuma->name);
-
+        
         return $embed;
     }
 
-   private static function getByRaridade(string $raridade)
+   private function getByRaridade(string $raridade)
     {
         $where = 'raridade = ?';
         $params = [$raridade];
     
-        if (self::$previousAkuma !== null) {
+        if ($this->previousAkuma !== null) {
             $where .= ' AND id != ?';
-            $params[] = self::$previousAkuma->id;
+            $params[] = $this->previousAkuma->id;
         }
     
         $akuma = R::findOne('akuma', "$where ORDER BY RAND()", $params);
@@ -80,8 +80,14 @@ class U
             $akuma = R::findOne('akuma', 'raridade = ? ORDER BY RAND()', [$raridade]);
         }
     
-        self::$previousAkuma = $akuma;
+        $this->previousAkuma = $akuma;
     
         return $akuma;
+    }
+    public function getSomeImage():string
+    {
+        $images= ['https://media1.tenor.com/m/i02LN_VG-N8AAAAd/bara-bara-no-mi.gif',
+    'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
+    return array_rand($images);
     }
 }
