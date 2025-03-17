@@ -5,7 +5,6 @@ use Random\Randomizer;
  function getAnimalRaridade()
 {
 $value = rand_float(0, 100);
-$resultado= null;
  switch ($value){
 case $value<=50:
     return "Comum";

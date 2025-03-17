@@ -46,9 +46,9 @@ function getRaridaded(String $UserID) {
         'password' => $_ENV['PASSWO']??null,
         'prefix' => 'app:'
     ]);
-    $storedTimestamp = $client->get("user:".$UserID);
+    $storedTimestamp = $client->get("user:$UserID");
     if(!$storedTimestamp){
-        $client->set("user:{$UserID}", Carbon::now()->timestamp);
+        $client->setex("user:$UserID", 1800,Carbon::now()->timestamp);
 return true;
     }
 
@@ -62,6 +62,6 @@ return true;
             
     }
 
-    $client->del("user:".$UserID);
+    $client->del("user:$UserID");
     return true;
 }
