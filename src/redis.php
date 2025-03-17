@@ -13,7 +13,8 @@ function check(string $userId): bool|string {
         'host' => $_ENV['HOST']??'localhost',
         'port' => 6379,
         'username' => $_ENV['USERNAME']??null,
-        'password' => $_ENV['PASSWO']??null
+        'password' => $_ENV['PASSWO']??null,
+        
     ]);
 
     $storedTimestamp = $client->get($userId);
@@ -30,11 +31,37 @@ function check(string $userId): bool|string {
         return $now->diffAsCarbonInterval($expirationTime)
             ->locale('pt_BR')
             ->forHumans(['parts' => 3]);
+            
     }
 
     $client->del($userId);
     return true;
 }
 
-$check = check('ola');
-var_dump($check);
+function getRaridaded(String $UserID) {
+    $client = new Client([
+        'host' => $_ENV['HOST']??'localhost',
+        'port' => 6379,
+        'username' => $_ENV['USERNAME']??null,
+        'password' => $_ENV['PASSWO']??null,
+        'prefix' => 'app:'
+    ]);
+    $storedTimestamp = $client->get("user:".$UserID);
+    if(!$storedTimestamp){
+        $client->set("user:{$UserID}", Carbon::now()->timestamp);
+return true;
+    }
+
+    $expirationTime = Carbon::createFromTimestamp($storedTimestamp)->addMinutes(30);
+    $now = Carbon::now();
+
+    if ($now->lessThan($expirationTime)) {
+        return $now->diffAsCarbonInterval($expirationTime)
+            ->locale('pt_BR')
+            ->forHumans(['parts' => 2]);
+            
+    }
+
+    $client->del("user:".$UserID);
+    return true;
+}

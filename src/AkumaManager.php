@@ -10,6 +10,12 @@ use R;
 use function Discord\getColor;
 use function React\Async\async;
 use function React\Async\coroutine;
+$dbName    = $_ENV['DB_NAME']??'bot';  
+$user      = $_ENV['USER']??'root';
+$password  = $_ENV['PASSWORD']??'erick';
+$host      = $_ENV['MYSQL_HOST']??'localhost';
+
+
 if (!R::testConnection()) {
     R::setup("mysql:host=$host;dbname=$dbName", $user, $password);
 }

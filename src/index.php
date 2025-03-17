@@ -4,7 +4,7 @@ namespace Discord\Proibida;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__.'/redis.php';
-
+require_once __DIR__.'/functions.php';
 use function Discord\getColor;
 
 use Discord\Builders\Components\ActionRow;
@@ -13,13 +13,11 @@ use Discord\Builders\MessageBuilder;
 use Discord\Proibida\AkumaManager;
 use function Discord\Proibida\check;
 use Discord\Discord as Bot;
-use Discord\Helpers\Collection;
+
 
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
-use Discord\Parts\Interactions\Interaction;
-use Discord\Parts\WebSockets\MessageInteraction;
-use Discord\Parts\WebSockets\MessageReaction;
+
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
@@ -27,12 +25,7 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
-
-    $token     = $_ENV['TOKEN'];
-    $dbName    = $_ENV['DB_NAME']??'bot';  
-    $user      = $_ENV['USER']??'root';
-    $password  = $_ENV['PASSWORD']??'erick';
-    $host      = $_ENV['MYSQL_HOST']??'localhost';
+$token     = $_ENV['TOKEN'];
 
 
 $discord = new Bot([
@@ -84,7 +77,19 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
         
             $message->reply($mess);
            
+                    }}
+
+                    if(strcasecmp(trim($conteudo), "!spawn")===0){
+                        $value =getRaridaded($id);
+                        if($value ===true){
+                            $raridade =  getAnimalRaridade();
+                            $message ->reply("Você achou uma criatura {$raridade}");
+                        }
+                        else{
+                            $message-> reply("Erro! Tente novamente em $value");
+                        }
+
                     }
-    }});
+    });
 
 $discord->run();
