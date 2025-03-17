@@ -80,7 +80,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $raridade = getAnimalRaridade();
             $message->channel->sendMessage("<@{$id}> achou uma criatura de tipo $raridade");
         } else {
-            $message->channel->sendMessage("@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
+            $message->channel->sendMessage("<@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
         }
     }
 });
