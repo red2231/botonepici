@@ -1,5 +1,5 @@
 <?php
-namespace Discord\Proihibida;
+namespace Discord\Proibida;
 enum Raridade: string
 {
     case COMUM='Comum';

@@ -11,7 +11,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Discord\\Proihibida\\": "src/"
+            "Discord\\Proibida\\": "src/"
         }
     },
     "authors": [

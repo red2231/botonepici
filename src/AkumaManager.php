@@ -1,13 +1,18 @@
 <?php
 
 namespace Discord\Proibida;
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/rb-mysql.php';
 
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use R;
 
 use function Discord\getColor;
+use function React\Async\async;
+use function React\Async\coroutine;
+if (!R::testConnection()) {
+    R::setup("mysql:host=$host;dbname=$dbName", $user, $password);
+}
 
 class AkumaManager
 {
@@ -17,7 +22,7 @@ class AkumaManager
     {
         $random = random_int(0, 100);
      
-        if ($random < 60) {
+        if ($random < 30) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -27,6 +32,7 @@ class AkumaManager
         } else {
             return $this->getAkuma($discord);
         }
+        
     }
 
     private function getAkuma(Discord $discord)

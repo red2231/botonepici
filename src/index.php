@@ -3,19 +3,27 @@
 namespace Discord\Proibida;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/rb-mysql.php';
 require_once __DIR__.'/redis.php';
+
 use function Discord\getColor;
+
+use Discord\Builders\Components\ActionRow;
+use Discord\Builders\Components\Button;
+use Discord\Builders\MessageBuilder;
+use Discord\Proibida\AkumaManager;
 use function Discord\Proibida\check;
 use Discord\Discord as Bot;
-use R;
+use Discord\Helpers\Collection;
+
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
+use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\WebSockets\MessageInteraction;
+use Discord\Parts\WebSockets\MessageReaction;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
 use Stichoza\GoogleTranslate\GoogleTranslate;
-
 
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
@@ -26,9 +34,6 @@ $dotenv->safeLoad();
     $password  = $_ENV['PASSWORD']??'erick';
     $host      = $_ENV['MYSQL_HOST']??'localhost';
 
-if (!R::testConnection()) {
-    R::setup("mysql:host=$host;dbname=$dbName", $user, $password);
-}
 
 $discord = new Bot([
     'token'   => $token,
@@ -58,23 +63,28 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, bot $discord) us
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
         $value = check($id);
         if ($value === true) {
-            $message->channel->sendMessage(
-                "<@{$message->author->id}>", 
-                false, 
-                (new AkumaManager)->getSomeAkuma($discord)
-            );
+            $embed = (new AkumaManager)->getSomeAkuma($discord);
+            $buttonone = Button::new(Button::STYLE_SUCCESS, 'one')->setLabel('Aceitar');
+            $buttontwo = Button::new(Button::STYLE_DANGER, 'second') ->setLabel('Recusar');
+            $ac = ActionRow::new()->addComponent($buttonone)
+            ->addComponent($buttontwo);
+            $en = MessageBuilder::new()->addEmbed($embed)
+            ->addComponent($ac);
+            $message->reply($en);
         } else {
             $translate = new GoogleTranslate;
             $translate->setTarget('pt-br');
             
             $embed = new Embed($discord);
-            $embed->setTitle("⏳ Limite de uso diário!");
-            $embed->setDescription("Tente novamente em: " . $translate->translate($value));
-            $embed->setColor(getColor('darkblue'));
             
-            $message->channel->sendMessage(
-                "<@{$message->author->id}>", false, $embed);
-        }
+            $embed->setTitle("⏳ Limite de uso diário!") -> setDescription("Tente novamente em: " . $translate->translate($value))
+           ->setColor(getColor('darkblue')) ;
+            $mess = MessageBuilder::new()
+            ->addEmbed($embed);
+        
+            $message->reply($mess);
+           
+                    }
     }});
 
 $discord->run();
