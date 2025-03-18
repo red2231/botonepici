@@ -7,8 +7,7 @@ use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\Usuario;
 use Doctrine\ORM\Query\ResultSetMapping;
-use Doctrine\ORM\Query\ResultSetMappingBuilder;
-use R;
+
 
 use function Discord\getColor;
 use function Discord\Proibida\getEntityManager;

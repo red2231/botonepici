@@ -3,16 +3,12 @@
 namespace Doctrine\Cli;
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Doctrine\DBAL\Connection as DBALConnection;
-use Doctrine\DBAL\Driver\Mysqli\Connection;
-use Doctrine\DBAL\Driver\Mysqli\Driver;
+
 use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
-use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 
 $dbName    = $_ENV['DB_NAME']??'bot';  
 $user      = $_ENV['USER']??'root';

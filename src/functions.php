@@ -1,6 +1,5 @@
 <?php
 
-use Random\Randomizer;
 
  function getAnimalRaridade()
 {
