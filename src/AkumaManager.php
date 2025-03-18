@@ -1,15 +1,17 @@
 <?php
 
 namespace Discord\Proibida;
-require_once __DIR__ . '/rb-mysql.php';
-
+require_once __DIR__.'/utils.php';
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
+use Discord\Proibida\Entities\Akuma;
+use Discord\Proibida\Entities\Usuario;
+use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use R;
 
 use function Discord\getColor;
-use function React\Async\async;
-use function React\Async\coroutine;
+use function Discord\Proibida\getEntityManager;
 $dbName    = $_ENV['DB_NAME']??'bot';  
 $user      = $_ENV['USER']??'root';
 $password  = $_ENV['PASSWORD']??'erick';
@@ -18,12 +20,11 @@ $host      = $_ENV['MYSQL_HOST']??'localhost';
 class AkumaManager
 {
     private $previousAkuma = null;
-
     public  function getSomeAkuma(Discord $discord)
     {
         $random = random_int(0, 100);
      
-        if ($random < 60) {
+        if ($random < 20) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -44,24 +45,30 @@ class AkumaManager
         $akuma = null;
 
         if ($random < 50) {
+            
             $akuma = $this->getByRaridade('Comum');
-            $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->tipo} comum");
+            $tipo = $akuma->tipo->value;
+            $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma $tipo comum");
             $embed->setColor(getColor('blue')); 
         } elseif ($random >= 50 && $random < 80) {
             $akuma = $this->getByRaridade('Raro');
-            $embed->setTitle("Legal! Você conseguiu uma {$akuma->tipo} do tipo raro!");
+            $tipo = $akuma->tipo->value;
+            $embed->setTitle("Legal! Você conseguiu uma $tipo do tipo raro!");
             $embed->setColor(getColor('yellow')); 
         } elseif ($random >= 80 && $random < 95) {
             $akuma = $this->getByRaridade('Épico');
-            $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->tipo} épica!");
+            $tipo = $akuma->tipo->value;
+            $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma $tipo épica!");
             $embed->setColor(getColor('purple')); 
         } elseif ($random >= 95 && $random < 99) {
             $akuma = $this->getByRaridade('Lendário');
-            $embed->setTitle("Você conseguiu uma {$akuma->tipo} lendária! Incrível!!");
+            $tipo = $akuma->tipo->value;
+            $embed->setTitle("Você conseguiu uma $tipo lendária! Incrível!!");
             $embed->setColor(getColor('pink')); 
         } else {
             $akuma = $this->getByRaridade('Mítico');
-            $embed->setTitle("O que!? Você conseguiu uma {$akuma->tipo} mítica?! Onde arranjou isso!?");
+            $tipo = $akuma->tipo->value;
+            $embed->setTitle("O que!? Você conseguiu uma $tipo mítica?! Onde arranjou isso!?");
             $embed->setColor(getColor('gold')); 
         }
 
@@ -72,24 +79,51 @@ class AkumaManager
         return $embed;
     }
 
-   private function getByRaridade(string $raridade, string $userId)
+   private function getByRaridade(string $raridade):Akuma
     {
-        $where = 'raridade = ? AND ';
-        $params = [$raridade];
-    
-        if ($this->previousAkuma !== null) {
-            $where .= ' AND id != ?';
-            $params[] = $this->previousAkuma->id;
+        $entityManager = getEntityManager();
+        $akuma = null;
+        $rsm = new ResultSetMapping();
+
+        $rsm->addEntityResult(Akuma::class, 'u');
+        
+        $rsm->addFieldResult('u', 'id', 'id');
+        $rsm->addFieldResult('u', 'name', 'name');
+        
+        $rsm->addFieldResult('u', 'raridade', 'raridade');
+        $rsm->addFieldResult('u', 'tipo', 'tipo');
+        $rsm->addFieldResult('u', 'description', 'description');  
+              if ($this->previousAkuma !== null) {
+            $sql = "
+                SELECT *
+                FROM akuma
+                WHERE raridade = :raridade
+                  AND usuario_id IS NULL
+                  AND id != :id
+                ORDER BY RAND()
+                LIMIT 1";
+            $query = $entityManager->createNativeQuery($sql,$rsm);
+            $query->setParameter('raridade', $raridade);
+            $query->setParameter('id', $this->previousAkuma);
+            
+            $akuma = $query->getOneOrNullResult();
+        } else {
+            $sql = "
+                SELECT *
+                FROM akuma
+                WHERE raridade = :raridade
+                AND usuario_id IS NULL
+                ORDER BY RAND()
+                LIMIT 1";
+            $query = $entityManager->createNativeQuery($sql,$rsm);
+            $query->setParameter('raridade', $raridade);
+            $akuma = $query->getOneOrNullResult();
         }
-    
-        $akuma = R::findOne('akuma', "$where ORDER BY RAND()", $params);
-    
-        if (!$akuma) {
-            $akuma = R::findOne('akuma', 'raridade = ? ORDER BY RAND()', [$raridade]);
-        }
-    
-        $this->previousAkuma = $akuma;
-    
+        
+        
+            $this->previousAkuma = $akuma->id;
+        
+        
         return $akuma;
     }
     public function getSomeImage():string
@@ -98,21 +132,17 @@ class AkumaManager
     'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
     return $images[array_rand($images)];
     }
-    public static function associateUser(string $akuma, string $username)
+    public  function associateUser(string $akuma, string $username)
     {
-        $user = R::dispense('user');
-        $user->akuma=$akuma;
-        $user->username= $username;
-        R::store($user);
-        $akum = R::dispense('akuma');
-        $akum->user=$user;
-        R::store($akum);
+   $EntityManager = getEntityManager();
+        $userRepo = $EntityManager->getRepository(Usuario::class);
+        $akumaRepo = $EntityManager->getRepository(Akuma::class);
+        $user = new Usuario($username);
+        $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
+        $user->setAkuma($akum);
+        $EntityManager->persist($user);
+        $EntityManager->flush();
     }
 
 
 }
-AkumaManager::associateUser("PIROCA", '1087022845957242941');
-echo 'salvado';
-$user = R::findOne('user', 'WHERE username=?', ['1087022845957242941']);
-
-echo $user->akuma;

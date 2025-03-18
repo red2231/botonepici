@@ -53,8 +53,8 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         $value = check($id);
         if ($value === true) {
             $embed = (new AkumaManager)->getSomeAkuma($discord);
-            $buttonOne = Button::new(Button::STYLE_SUCCESS, 'one')->setLabel('Aceitar');
-            $buttonTwo = Button::new(Button::STYLE_DANGER, 'second')->setLabel('Recusar');
+            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
             
             $actionRow = ActionRow::new()
                 ->addComponent($buttonOne)
@@ -88,14 +88,26 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $message->channel->sendMessage("<@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
         }
     }
+
+
 });
 $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
+    $akumaManager = new AkumaManager;
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
 $id = $interaction->data->custom_id;
 $userId = $interaction->user->id;
-    if($id==='one'){
+
+$targetId = explode('_', $id)[1];
+if( $userId!== $targetId){
+$interaction->respondWithMessage("Ei! Essa mensagem não deveria ser respondida por você, engraçadinho", true);
+return;
+}
+$buttonId= explode('_', $id)[0];
+
+    if($buttonId==='one'){
         $akuma  = $interaction->message->embeds[0]->footer->text;
         $interaction->message->delete();
+       $akumaManager->associateUser($akuma, $userId);
 $interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
 }
 else{
