@@ -27,13 +27,9 @@ class Akuma
     private string $description;
 
     #[ORM\OneToOne(targetEntity: Usuario::class, inversedBy: 'akuma')]
-    #[ORM\JoinColumn(
-        name: 'usuario_id', 
-        referencedColumnName: 'username', 
-        unique: true,
-        columnDefinition: 'VARCHAR(100)' 
-    )]
+    #[ORM\JoinColumn(name: 'usuario_id', referencedColumnName: 'id', unique: true)]
     private ?Usuario $user = null;
+
 
     public function __construct(?Usuario $user = null)
     {
