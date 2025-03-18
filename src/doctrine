@@ -30,7 +30,7 @@ $host      = $_ENV['MYSQL_HOST']??'localhost';
     'charset'  => 'utf8mb4'
    ]);
    $config = ORMSetup::createAttributeMetadataConfiguration(
-    paths: [__DIR__ . '/../../src/Entities'],
+    paths: [__DIR__ . '/Entities'],
     isDevMode: true,
 );
 $EntityManager = new EntityManager($connec, $config);
