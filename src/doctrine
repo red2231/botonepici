@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+namespace Doctrine\Cli;
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Doctrine\DBAL\Connection as DBALConnection;
+use Doctrine\DBAL\Driver\Mysqli\Connection;
+use Doctrine\DBAL\Driver\Mysqli\Driver;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+
+$dbName    = $_ENV['DB_NAME']??'bot';  
+$user      = $_ENV['USER']??'root';
+$password  = $_ENV['PASSWORD']??'erick';
+$host      = $_ENV['MYSQL_HOST']??'localhost';
+
+
+   $connec = DriverManager::getConnection([
+    'driver'   => 'mysqli',
+    'host'     => 'localhost',
+    'port'     => 3306,
+    'dbname'   => 'bot',
+    'user'     => 'root',
+    'password' => 'erick',
+    'charset'  => 'utf8mb4'
+   ]);
+   $config = ORMSetup::createAttributeMetadataConfiguration(
+    paths: [__DIR__ . '/../../src/Entities'],
+    isDevMode: true,
+);
+$EntityManager = new EntityManager($connec, $config);
+$commands =[];
+ConsoleRunner::run(
+   new SingleManagerProvider($EntityManager),
+   $commands
+);
