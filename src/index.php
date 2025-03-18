@@ -15,6 +15,7 @@ use function Discord\Proibida\check;
 use Discord\Discord as Bot;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
+use Discord\Parts\Interactions\Interaction;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
@@ -54,12 +55,16 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $embed = (new AkumaManager)->getSomeAkuma($discord);
             $buttonOne = Button::new(Button::STYLE_SUCCESS, 'one')->setLabel('Aceitar');
             $buttonTwo = Button::new(Button::STYLE_DANGER, 'second')->setLabel('Recusar');
+            
             $actionRow = ActionRow::new()
                 ->addComponent($buttonOne)
                 ->addComponent($buttonTwo);
             $builder = MessageBuilder::new()
-                ->addEmbed($embed)
-                ->addComponent($actionRow);
+                ->addEmbed($embed);
+                if($embed->title!=='Você achou um... Nada!?'){
+                    $builder->addComponent($actionRow);
+                }
+                
             $message->reply($builder);
         } else {
             $translate = new GoogleTranslate();
@@ -84,7 +89,19 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         }
     }
 });
-$discord->on(Event::INTEGRATION_CREATE, function(){
-
+$discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
+if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
+$id = $interaction->data->custom_id;
+$userId = $interaction->user->id;
+    if($id==='one'){
+        $akuma  = $interaction->message->embeds[0]->footer->text;
+        $interaction->message->delete();
+$interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
+}
+else{
+    $interaction->message->delete();
+    $interaction->respondWithMessage("<@{$userId}> Akuma no Mi recusada!", true);
+}
+}
 });
 $discord->run();

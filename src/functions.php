@@ -7,9 +7,9 @@ use Random\Randomizer;
 $value = rand_float(0, 100);
 
 switch (true) {
-    case ($value <= 50):
+    case ($value <= 60):
         return "Comum";
-    case ($value > 50 && $value <= 80):
+    case ($value > 60 && $value <= 80):
         return "Incomum";
     case ($value > 80 && $value <= 90):
         return "Rara";
@@ -27,9 +27,10 @@ switch (true) {
 
 
 
-function rand_float(int $min, int $max): float{
-return $min + mt_rand()/mt_getrandmax() * ($max-$min);
+function rand_float(float $min, float $max): float {
+    if ($min > $max) {
+        [$min, $max] = [$max, $min];
+    }
+    $fraction = mt_rand() / mt_getrandmax();
+    return $min + $fraction * ($max - $min);
 }
-$value = getAnimalRaridade();
-
-echo $value;

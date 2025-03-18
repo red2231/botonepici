@@ -15,11 +15,6 @@ $user      = $_ENV['USER']??'root';
 $password  = $_ENV['PASSWORD']??'erick';
 $host      = $_ENV['MYSQL_HOST']??'localhost';
 
-
-if (!R::testConnection()) {
-    R::setup("mysql:host=$host;dbname=$dbName", $user, $password);
-}
-
 class AkumaManager
 {
     private $previousAkuma = null;
@@ -28,7 +23,7 @@ class AkumaManager
     {
         $random = random_int(0, 100);
      
-        if ($random < 30) {
+        if ($random < 60) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -43,6 +38,7 @@ class AkumaManager
 
     private function getAkuma(Discord $discord)
     {
+        
         $embed = new Embed($discord);
         $random = random_int(0, 100);
         $akuma = null;
@@ -76,9 +72,9 @@ class AkumaManager
         return $embed;
     }
 
-   private function getByRaridade(string $raridade)
+   private function getByRaridade(string $raridade, string $userId)
     {
-        $where = 'raridade = ?';
+        $where = 'raridade = ? AND ';
         $params = [$raridade];
     
         if ($this->previousAkuma !== null) {
@@ -102,4 +98,21 @@ class AkumaManager
     'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
     return $images[array_rand($images)];
     }
+    public static function associateUser(string $akuma, string $username)
+    {
+        $user = R::dispense('user');
+        $user->akuma=$akuma;
+        $user->username= $username;
+        R::store($user);
+        $akum = R::dispense('akuma');
+        $akum->user=$user;
+        R::store($akum);
+    }
+
+
 }
+AkumaManager::associateUser("PIROCA", '1087022845957242941');
+echo 'salvado';
+$user = R::findOne('user', 'WHERE username=?', ['1087022845957242941']);
+
+echo $user->akuma;
