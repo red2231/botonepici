@@ -10,7 +10,7 @@ use Doctrine\ORM\ORMSetup;
 
 function getEntityManager(): EntityManager{
     $connec = DriverManager::getConnection([
-        'driver'   => 'mysqli',
+        'driver'   => 'pdo_mysql',
         'host'     => $_ENV['MYSQL_HOST']??'localhost',
         'port'     => 3306,
         'dbname'   =>  $_ENV['DB_NAME']??'bot',
