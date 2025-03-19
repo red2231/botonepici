@@ -3,7 +3,7 @@
 use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\AkumaToAdd;
 use Discord\Proibida\Entities\Usuario;
-
+require_once __DIR__.'/utils.php';
 use function Discord\Proibida\getEntityManager;
 
 function frontHandler(string $akumaName,string $userId, string $url ){
