@@ -15,4 +15,5 @@ WORKDIR /var/www/html
 COPY . .
 RUN chown -R www-data:www-data /var/www/html
 RUN composer install --no-dev --optimize-autoloader
-CMD ["php","php ./src/doctrine orm:schema-tool:update --force", "./src/index.php"]
+RUN php src/doctrine orm:schema-tool:update --force
+CMD ["php", "./src/index.php"]
