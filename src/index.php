@@ -142,7 +142,7 @@ else{
 });
 $discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
 $userId = $member->user->id;
-$bool = (new AkumaManager)->verifyMember($userId);
+$bool = (new AkumaManager)->removeMemberAndGetAkumaName($userId);
 if(is_bool($bool)){
 
 return;
