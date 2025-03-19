@@ -30,7 +30,7 @@ $token = $_ENV['TOKEN'];
 $discord = new Bot([
     'token'   => $token,
     'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::GUILD_MODERATION, Intents::MESSAGE_CONTENT
-    , Intents::DIRECT_MESSAGES]
+    , Intents::DIRECT_MESSAGES, Intents::GUILDS]
 ]);
 
 $discord->on('init', function (Bot $discord) {
