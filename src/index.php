@@ -5,7 +5,7 @@ namespace Discord\Proibida;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/redis.php';
 require_once __DIR__ . '/functions.php';
-
+require_once __DIR__.'/migração.php';
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
@@ -15,6 +15,7 @@ use function Discord\Proibida\check;
 use Discord\Discord as Bot;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
+use Discord\Parts\Guild\Ban;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
 use Discord\Proibida\Entities\Usuario;
@@ -51,6 +52,34 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
+
+    $migracao ='1352018430982619348';
+
+if($message->channel_id===$migracao){
+$userId = $message->author->id;
+$url = $message->author->avatar;
+
+    $bool = frontHandler($conteudo,$userId, $url );
+    if($bool ===true){
+        $embed =( new Embed($discord))
+        ->setTitle("Tudo certo!")
+        ->setColor(getColor('blue'))
+        ->setFooter('A akuma no mi foi reservada!');
+            $message->reply(MessageBuilder::new()->addEmbed($embed));
+
+    }
+    else{
+        $embed = (new Embed($discord))
+        ->setTitle('Akuma não encontrada! Mas não se preocupe')
+        ->setColor(getColor('red'))
+        ->setDescription("Sua akuma foi recebida mesmo assim e será analisada e 'setada' mesmo assim. Relaxe!");
+        $message->reply(MessageBuilder::new()->addEmbed($embed));
+
+
+    }
+
+
+}
 
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
         $value = check($id);
@@ -150,6 +179,19 @@ return;
 }else{
     $discord->getChannel('1319160352277008415')
     ->sendMessage("O usuário <@{$userId}> saiu e deixou a akuma $bool livre! Ninguém mandou vazar!");
+}
+
+});
+$discord->on(Event::GUILD_BAN_ADD, function(Ban $ban, Bot $discord){
+$userID = $ban->user->id;
+
+$bool = (new AkumaManager)->removeMemberAndGetAkumaName($userID);
+if($bool===false){
+
+return;
+}else{
+    $discord->getChannel('1319160352277008415')
+    ->sendMessage("O usuário <@{$userID}> foi banido e deixou a akuma $bool livre! Ninguém mandou desrespeitar as regras!");
 }
 
 });
