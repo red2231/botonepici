@@ -32,19 +32,47 @@ class Usuario
             $akuma->user = $this;
         }
     }
-    public function __get(string $name)
-    {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
+   
 
-        throw new \Exception("Propriedade {$name} não existe na classe " . __CLASS__);
+    /**
+     * Get the value of username
+     *
+     * @return string
+     */
+    public function getUsername(): string {
+        return $this->username;
     }
 
-    public function __set(string $name, $value)
-    {
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-            return;
-        }}
+    /**
+     * Set the value of avatarUrl
+     *
+     * @param string $avatarUrl
+     *
+     * @return self
+     */
+    public function setAvatarUrl(string $avatarUrl): self {
+        $this->avatarUrl = $avatarUrl;
+        return $this;
+    }
+
+    /**
+     * Get the value of avatarUrl
+     *
+     * @return string
+     */
+    public function getAvatarUrl(): string {
+        return $this->avatarUrl;
+    }
+
+    /**
+     * Set the value of username
+     *
+     * @param string $username
+     *
+     * @return self
+     */
+    public function setUsername(string $username): self {
+        $this->username = $username;
+        return $this;
+    }
 }

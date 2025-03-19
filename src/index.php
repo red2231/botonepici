@@ -92,8 +92,8 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     
         if ($user instanceof Usuario) {
             $Embed->setColor(getColor('lightskyblue'))
-                ->setTitle("A akuma pertence a <@{$user->username}>")
-                ->setImage("{$user->avatarUrl}");
+                ->setTitle("A akuma pertence a <@{$user->getUsername()}>")
+                ->setImage("{$user->getAvatarUrl()}");
             $message->reply(MessageBuilder::new()->addEmbed($Embed));
         } else {
             $message->reply($user === null ? "Ei, você está com sorte. Ninguém é detentor dessa akuma no momento" : "Não encontrei nenhuma akuma com esse nome");

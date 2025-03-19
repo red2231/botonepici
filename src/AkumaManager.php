@@ -139,7 +139,7 @@ class AkumaManager
         $user = new Usuario($username);
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
         $user->setAkuma($akum);
-        $user->avatarUrl=$url;
+        $user->setAvatarUrl($url);
         $EntityManager->persist($user);
         $EntityManager->flush();
     }
