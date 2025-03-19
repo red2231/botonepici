@@ -6,14 +6,16 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 
 
+
+
 function getEntityManager(): EntityManager{
     $connec = DriverManager::getConnection([
         'driver'   => 'mysqli',
-        'host'     => 'localhost',
+        'host'     => $_ENV['MYSQL_HOST']??'localhost',
         'port'     => 3306,
-        'dbname'   => 'bot',
-        'user'     => 'root',
-        'password' => 'erick',
+        'dbname'   =>  $_ENV['DB_NAME']??'bot',
+        'user'     => $_ENV['USER']??'root',
+        'password' => $_ENV['PASSWORD']??'erick',
         'charset'  => 'utf8mb4'
        ]);
        $config = ORMSetup::createAttributeMetadataConfiguration(

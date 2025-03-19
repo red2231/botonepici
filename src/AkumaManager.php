@@ -11,10 +11,7 @@ use Doctrine\ORM\Query\ResultSetMapping;
 
 use function Discord\getColor;
 use function Discord\Proibida\getEntityManager;
-$dbName    = $_ENV['DB_NAME']??'bot';  
-$user      = $_ENV['USER']??'root';
-$password  = $_ENV['PASSWORD']??'erick';
-$host      = $_ENV['MYSQL_HOST']??'localhost';
+
 
 class AkumaManager
 {
