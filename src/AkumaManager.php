@@ -143,10 +143,16 @@ class AkumaManager
         $EntityManager->persist($user);
         $EntityManager->flush();
     }
-    public function getAkumaUserOrNull(string $name): ?Usuario
+    public function getAkumaUserOrNull(string $name): Usuario|null|false
     {
         $EntityManager = getEntityManager();
-    
+        $repo = $EntityManager->getRepository(Akuma::class);
+        $reference = $repo->findOneBy(['name' => $name]);
+        if(!$reference){
+            return false;
+        }
+
+
         $query = $EntityManager->createQueryBuilder()
             ->select('u')
             ->from('Discord\Proibida\Entities\Usuario', 'u')
@@ -154,8 +160,9 @@ class AkumaManager
             ->where('a.name = :name')
             ->setParameter('name', $name)
             ->getQuery();
-    
-        return $query->getOneOrNullResult();
+    return $query->getOneOrNullResult();
+
+        
     }
 
 public function verifyMember(string $userId)

@@ -17,6 +17,7 @@ use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
+use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
@@ -84,7 +85,12 @@ $partes = explode(" ", $conteudo);
 $akumaName = implode(" ", array_slice($partes, 1, 4));
 $user = (new AkumaManager)->getAkumaUserOrNull($akumaName);
 $Embed = new Embed($discord);
-if($user){
+
+if($user===false){
+$message->reply("Não encontrei nenhuma akuma com esse nome");
+
+}
+elseif($user instanceof Usuario ){
 $Embed->setColor(getColor('lightskyblue'))
 ->setTitle("A akuma pertence a <@{$user->username}>")
 ->setImage("{$user->avatarUrl}");
