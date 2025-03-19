@@ -80,24 +80,25 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $message->reply($builder);
         }
     }
-if(str_starts_with($conteudo, '+quemesta')){
-$partes = explode(" ", $conteudo);
-$akumaName = implode(" ", array_slice($partes, 1, 4));
-$user = (new AkumaManager)->getAkumaUserOrNull($akumaName);
-$Embed = new Embed($discord);
-
-if($user===false){
-$message->reply("Não encontrei nenhuma akuma com esse nome");
-
-}
-elseif($user instanceof Usuario ){
-$Embed->setColor(getColor('lightskyblue'))
-->setTitle("A akuma pertence a <@{$user->username}>")
-->setImage("{$user->avatarUrl}");
-$message->reply(MessageBuilder::new()->addEmbed($Embed));
-}else{
-$message->reply('Ei, você está com sorte. Ninguém é detentor dessa akuma no momento');    
-}
+    if (str_starts_with($conteudo, '+quemesta')) {
+        $partes = explode(" ", $conteudo);
+        if (count($partes) < 2) {
+            $message->reply("Por favor, forneça o nome da akuma!");
+            return;
+        }
+        $akumaName = implode(" ", array_slice($partes, 1));
+        $user = (new AkumaManager)->getAkumaUserOrNull($akumaName);
+        $Embed = new Embed($discord);
+    
+        if ($user instanceof Usuario) {
+            $Embed->setColor(getColor('lightskyblue'))
+                ->setTitle("A akuma pertence a <@{$user->username}>")
+                ->setImage("{$user->avatarUrl}");
+            $message->reply(MessageBuilder::new()->addEmbed($Embed));
+        } else {
+            $message->reply($user === null ? "Ei, você está com sorte. Ninguém é detentor dessa akuma no momento" : "Não encontrei nenhuma akuma com esse nome");
+        }
+    
 }
     if (strcasecmp(trim($conteudo), "!spawn") === 0) {
         $value = getRaridaded($id);
