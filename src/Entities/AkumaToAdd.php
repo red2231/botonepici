@@ -16,6 +16,10 @@ class AkumaToAdd
     #[ORM\Column(nullable:true, type:'string')]
     private ?string $description;
 
+    #[ORM\Column(name:'userId', type:'string')]
+    private string $userId;
+    #[ORM\Column(name:'avatarUser', type:'string')]
+    private string $avatarUser;
 
 
     /**
@@ -78,6 +82,48 @@ class AkumaToAdd
      */
     public function setId(int $id): self {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get the value of userId
+     *
+     * @return string
+     */
+    public function getUserId(): string {
+        return $this->userId;
+    }
+
+    /**
+     * Set the value of userId
+     *
+     * @param string $userId
+     *
+     * @return self
+     */
+    public function setUserId(string $userId): self {
+        $this->userId = $userId;
+        return $this;
+    }
+
+    /**
+     * Get the value of avatarUser
+     *
+     * @return string
+     */
+    public function getAvatarUser(): string {
+        return $this->avatarUser;
+    }
+
+    /**
+     * Set the value of avatarUser
+     *
+     * @param string $avatarUser
+     *
+     * @return self
+     */
+    public function setAvatarUser(string $avatarUser): self {
+        $this->avatarUser = $avatarUser;
         return $this;
     }
 }

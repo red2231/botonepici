@@ -16,6 +16,8 @@ $akuma =$query->getQuery()->getOneOrNullResult();
 if(!$akuma){
 $toAdd = new AkumaToAdd;
 $toAdd->setName($akumaName);
+$toAdd->setUserId($userId);
+$toAdd->setAvatarUser($url);
 $EntityManager->persist($toAdd);
 $EntityManager->flush();
 return false;
