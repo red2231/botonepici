@@ -27,7 +27,7 @@ class Akuma
     private string $description;
 
     #[ORM\OneToOne(targetEntity: Usuario::class, inversedBy: 'akuma')]
-    #[ORM\JoinColumn(name: 'usuario_id', referencedColumnName: 'id', unique: true, onDelete:"SET NULL")]
+    #[ORM\JoinColumn(name: 'usuario_id', referencedColumnName: 'id', unique: true, onDelete:"SET NULL", nullable:true)]
     private ?Usuario $user = null;
 
 
