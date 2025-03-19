@@ -13,7 +13,7 @@ class AkumaToAdd
     private int $id;
     #[ORM\Column]
     private string $name;
-    #[ORM\Column]
+    #[ORM\Column(nullable:true, type:'string')]
     private ?string $description;
 
 
