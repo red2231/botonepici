@@ -10,19 +10,14 @@ use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
-$dbName    = $_ENV['DB_NAME']??'bot';  
-$user      = $_ENV['USER']??'root';
-$password  = $_ENV['PASSWORD']??'erick';
-$host      = $_ENV['MYSQL_HOST']??'localhost';
-
 
    $connec = DriverManager::getConnection([
     'driver'   => 'mysqli',
-    'host'     => 'localhost',
+    'host'     => $_ENV['MYSQL_HOST']??'localhost',
     'port'     => 3306,
-    'dbname'   => 'bot',
-    'user'     => 'root',
-    'password' => 'erick',
+    'dbname'   => $_ENV['DB_NAME']??'bot',
+    'user'     => $_ENV['USER']??'root',
+    'password' => $_ENV['PASSWORD']??'erick',
     'charset'  => 'utf8mb4'
    ]);
    $config = ORMSetup::createAttributeMetadataConfiguration(
