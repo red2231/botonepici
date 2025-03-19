@@ -22,7 +22,7 @@ class AkumaManager
     {
         $random = random_int(0, 100);
      
-        if ($random < 50) {
+        if ($random < 30) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -119,7 +119,7 @@ class AkumaManager
         }
         
         
-            $this->previousAkuma = $akuma->id;
+            $this->previousAkuma = $akuma->getId();
         
         
         return $akuma;
