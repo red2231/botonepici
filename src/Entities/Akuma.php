@@ -38,20 +38,105 @@ class Akuma
             $user->setAkuma($this);
         }
     }
+public function getUser():Usuario
+{
+    return $this->user;
+}
+public function setUser(Usuario $user)
+{
+    $this->user=$user;
+}
 
-    public function __get(string $name)
-    {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
-
-        throw new \Exception("Propriedade {$name} não existe na classe " . __CLASS__);
+    /**
+     * Get the value of description
+     *
+     * @return string
+     */
+    public function getDescription(): string {
+        return $this->description;
     }
 
-    public function __set(string $name, $value)
-    {
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-            return;
-        }}
+    /**
+     * Set the value of description
+     *
+     * @param string $description
+     *
+     * @return self
+     */
+    public function setDescription(string $description): self {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * Get the value of tipo
+     *
+     * @return Tipo
+     */
+    public function getTipo(): Tipo {
+        return $this->tipo;
+    }
+
+    /**
+     * Set the value of tipo
+     *
+     * @param Tipo $tipo
+     *
+     * @return self
+     */
+    public function setTipo(Tipo $tipo): self {
+        $this->tipo = $tipo;
+        return $this;
+    }
+
+    /**
+     * Get the value of raridade
+     *
+     * @return Raridade
+     */
+    public function getRaridade(): Raridade {
+        return $this->raridade;
+    }
+
+    /**
+     * Set the value of raridade
+     *
+     * @param Raridade $raridade
+     *
+     * @return self
+     */
+    public function setRaridade(Raridade $raridade): self {
+        $this->raridade = $raridade;
+        return $this;
+    }
+
+    /**
+     * Get the value of name
+     *
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    /**
+     * Set the value of name
+     *
+     * @param string $name
+     *
+     * @return self
+     */
+    public function setName(string $name): self {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Get the value of id
+     *
+     * @return int
+     */
+    public function getId(): int {
+        return $this->id;
+    }
     }

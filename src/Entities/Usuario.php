@@ -29,10 +29,13 @@ class Usuario
     {
         if ($this->akuma !== $akuma) {
             $this->akuma = $akuma;
-            $akuma->user = $this;
-        }
+            $akuma->setUser($this);
+            }
     }
-   
+   public function getAkuma():Akuma
+   {
+    return $this->akuma;
+   }
 
     /**
      * Get the value of username

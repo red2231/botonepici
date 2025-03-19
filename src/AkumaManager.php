@@ -22,7 +22,7 @@ class AkumaManager
     {
         $random = random_int(0, 100);
      
-        if ($random < 20) {
+        if ($random < 50) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -45,34 +45,34 @@ class AkumaManager
         if ($random < 50) {
             
             $akuma = $this->getByRaridade('Comum');
-            $tipo = $akuma->tipo->value;
+            $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma $tipo comum");
             $embed->setColor(getColor('blue')); 
         } elseif ($random >= 50 && $random < 80) {
             $akuma = $this->getByRaridade('Raro');
-            $tipo = $akuma->tipo->value;
+            $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Legal! Você conseguiu uma $tipo do tipo raro!");
             $embed->setColor(getColor('yellow')); 
         } elseif ($random >= 80 && $random < 95) {
             $akuma = $this->getByRaridade('Épico');
-            $tipo = $akuma->tipo->value;
+            $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma $tipo épica!");
             $embed->setColor(getColor('purple')); 
         } elseif ($random >= 95 && $random < 99) {
             $akuma = $this->getByRaridade('Lendário');
-            $tipo = $akuma->tipo->value;
+            $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Você conseguiu uma $tipo lendária! Incrível!!");
             $embed->setColor(getColor('pink')); 
         } else {
             $akuma = $this->getByRaridade('Mítico');
-            $tipo = $akuma->tipo->value;
+            $tipo = $akuma->getTipo()->value;
             $embed->setTitle("O que!? Você conseguiu uma $tipo mítica?! Onde arranjou isso!?");
             $embed->setColor(getColor('gold')); 
         }
 
         $embed->setImage($this->getSomeImage());
-        $embed->setDescription($akuma->description);
-        $embed->setFooter($akuma->name);
+        $embed->setDescription($akuma->getDescription());
+        $embed->setFooter($akuma->getName());
         
         return $embed;
     }
@@ -176,14 +176,10 @@ public function verifyMember(string $userId)
     }
     $EntityManager->remove($user);
     $EntityManager->flush();
-    $name = $user->akuma->name;
+    $name = $user->getAkuma()->getName();
 if($name){
 return $name;
 }
 return true;
 }
-
-
     }
-
-

@@ -25,3 +25,8 @@ function getEntityManager(): EntityManager{
     $EntityManager = new EntityManager($connec, $config);
     return $EntityManager;
 }
+
+
+function extractUserIdFromRaw(string $raw){
+
+}

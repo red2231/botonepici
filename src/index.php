@@ -36,7 +36,7 @@ $discord->on('init', function (Bot $discord) {
     echo 'Bot iniciou' . PHP_EOL;
 });
 
-$processedMessages = [];
+static $processedMessages = [];
 
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
     $id = $message->author->id;
@@ -57,7 +57,6 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $embed = (new AkumaManager)->getSomeAkuma($discord);
             $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
             $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-            
             $actionRow = ActionRow::new()
                 ->addComponent($buttonOne)
                 ->addComponent($buttonTwo);
@@ -80,6 +79,10 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $message->reply($builder);
         }
     }
+    
+
+
+
     if (str_starts_with($conteudo, '+quemesta')) {
         $partes = explode(" ", $conteudo);
         if (count($partes) < 2) {
