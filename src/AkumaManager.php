@@ -165,7 +165,7 @@ class AkumaManager
         
     }
 
-    public function removeMemberAndGetAkumaName(string $username)
+    public function removeMemberAndGetAkumaName(string $username): false|string
     {
         $EntityManager = getEntityManager();
         $repo = $EntityManager->getRepository(Usuario::class);
