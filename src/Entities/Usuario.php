@@ -15,7 +15,8 @@ class Usuario
     
     #[ORM\Column(type: 'string', unique: true, length: 100)]
     private string $username;
-    
+    #[ORM\Column(type:'string', length: 500)]
+    private string $avatarUrl;
     #[ORM\OneToOne(targetEntity: Akuma::class, mappedBy: 'user', cascade: ['persist', 'refresh', 'detach'])]
     private ?Akuma $akuma = null;
 

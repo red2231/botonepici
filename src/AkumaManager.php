@@ -2,6 +2,8 @@
 
 namespace Discord\Proibida;
 require_once __DIR__.'/utils.php';
+
+use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
@@ -128,17 +130,53 @@ class AkumaManager
     'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
     return $images[array_rand($images)];
     }
-    public  function associateUser(string $akuma, string $username)
+    public  function associateUser(string $akuma, string $username, string $url)
     {
    $EntityManager = getEntityManager();
+   
         $userRepo = $EntityManager->getRepository(Usuario::class);
         $akumaRepo = $EntityManager->getRepository(Akuma::class);
         $user = new Usuario($username);
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
         $user->setAkuma($akum);
+        $user->avatarUrl=$url;
         $EntityManager->persist($user);
         $EntityManager->flush();
     }
+    public function getAkumaUserOrNull(string $name): ?Usuario
+    {
+        $EntityManager = getEntityManager();
+    
+        $query = $EntityManager->createQueryBuilder()
+            ->select('u')
+            ->from('Discord\Proibida\Entities\Usuario', 'u')
+            ->join('u.akuma', 'a')
+            ->where('a.name = :name')
+            ->setParameter('name', $name)
+            ->getQuery();
+    
+        return $query->getOneOrNullResult();
+    }
 
+public function verifyMember(string $userId)
+{
+    $EntityManager = getEntityManager();
+    $repo = $EntityManager->getRepository(Usuario::class);
+    $user = $repo->findOneBy(['username' => $userId]);
 
+    if(!$user){
+        return false;
+    }
+    $EntityManager->remove($user);
+    $EntityManager->flush();
+    $name = $user->akuma->name;
+if($name){
+return $name;
 }
+return true;
+}
+
+
+    }
+
+

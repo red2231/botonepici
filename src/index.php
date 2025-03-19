@@ -16,6 +16,7 @@ use Discord\Discord as Bot;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\User\Member;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
@@ -78,7 +79,20 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
             $message->reply($builder);
         }
     }
-
+if(str_starts_with($conteudo, '+quemesta')){
+$partes = explode(" ", $conteudo);
+$akumaName = implode(" ", array_slice($partes, 1, 4));
+$user = (new AkumaManager)->getAkumaUserOrNull($akumaName);
+$Embed = new Embed($discord);
+if($user){
+$Embed->setColor(getColor('lightskyblue'))
+->setTitle("A akuma pertence a <@{$user->username}>")
+->setImage("{$user->avatarUrl}");
+$message->reply(MessageBuilder::new()->addEmbed($Embed));
+}else{
+$message->reply('Ei, você está com sorte. Ninguém é detentor dessa akuma no momento');    
+}
+}
     if (strcasecmp(trim($conteudo), "!spawn") === 0) {
         $value = getRaridaded($id);
         if ($value === true) {
@@ -96,7 +110,7 @@ $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
 $id = $interaction->data->custom_id;
 $userId = $interaction->user->id;
-
+$imagem= $interaction->user->avatar;
 $targetId = explode('_', $id)[1];
 if( $userId!== $targetId){
 $interaction->respondWithMessage("Ei! Essa mensagem não deveria ser respondida por você, engraçadinho", true);
@@ -107,7 +121,7 @@ $buttonId= explode('_', $id)[0];
     if($buttonId==='one'){
         $akuma  = $interaction->message->embeds[0]->footer->text;
         $interaction->message->delete();
-       $akumaManager->associateUser($akuma, $userId);
+       $akumaManager->associateUser($akuma, $userId, $imagem);
 $interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
 }
 else{
@@ -116,4 +130,16 @@ else{
 }
 }
 });
+$discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
+$userId = $member->user->id;
+$bool = (new AkumaManager)->verifyMember($userId);
+if(is_bool($bool)){
+return;
+}else{
+    $discord->getChannel('1319160352277008415')
+    ->sendMessage("O usuário <@{$userId}> saiu e deixou a akuma $bool livre! Ninguém mandou vazar!");
+}
+
+});
+
 $discord->run();
