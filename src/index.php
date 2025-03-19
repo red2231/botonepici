@@ -144,6 +144,7 @@ $discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
 $userId = $member->user->id;
 $bool = (new AkumaManager)->verifyMember($userId);
 if(is_bool($bool)){
+
 return;
 }else{
     $discord->getChannel('1319160352277008415')

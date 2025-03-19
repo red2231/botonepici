@@ -165,21 +165,29 @@ class AkumaManager
         
     }
 
-public function verifyMember(string $userId)
-{
-    $EntityManager = getEntityManager();
-    $repo = $EntityManager->getRepository(Usuario::class);
-    $user = $repo->findOneBy(['username' => $userId]);
-
-    if(!$user){
-        return false;
+    public function removeMemberAndGetAkumaName(string $username)
+    {
+        $EntityManager = getEntityManager();
+        $repo = $EntityManager->getRepository(Usuario::class);
+        $user = $repo->findOneBy(['username' => $username]);
+    
+        if (!$user) {
+            return false;
+        }
+    
+        $akuma = $user->getAkuma();
+        $akumaName = $akuma ? $akuma->getName() : null;
+    
+        try {
+            $EntityManager->beginTransaction();
+            $EntityManager->remove($user);
+            $EntityManager->flush();
+            $EntityManager->commit();
+        } catch (\Exception $e) {
+            $EntityManager->rollback();
+            throw $e; 
+        }
+    
+        return $akumaName ?? false;
     }
-    $EntityManager->remove($user);
-    $EntityManager->flush();
-    $name = $user->getAkuma()->getName();
-if($name){
-return $name;
-}
-return true;
-}
     }
