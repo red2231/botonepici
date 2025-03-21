@@ -25,6 +25,7 @@ use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
+use Exception;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
@@ -34,7 +35,7 @@ $token = $_ENV['TOKEN'];
 $discord = new Bot([
     'token'   => $token,
     'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::GUILD_MODERATION, Intents::MESSAGE_CONTENT
-    , Intents::DIRECT_MESSAGES, Intents::GUILDS]
+    , Intents::DIRECT_MESSAGES, Intents::GUILDS, Intents::GUILD_PRESENCES]
 ]);
 
 $discord->on('init', function (Bot $discord) {
@@ -83,26 +84,24 @@ $url = $message->author->avatar;
     if ($conteudo === '!varrer') {
         $EntityManager = getEntityManager();
         $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
-    
-        foreach ($discord->guilds as $guild) {
-
-            $guild->members->fetch()->done(function ($members) use ($AkumaTodo) {
-                foreach ($members as $member) {
-                    $user = $member->user;
-                    $id = $user->id;
-                    $url = $user->avatar;
-    
-                    $akumaToAd = $AkumaTodo->findOneBy(['userId' => $id]);
-    
-                    if ($akumaToAd && !$akumaToAd->getAvatarUser()) {
-                        $akumaToAd->setAvatarUser($url);
-                        echo "$url setado para o usuário com ID $id\n";
-                    }
-                }
-            }, function ($error) {
-                echo "Erro ao buscar membros: $error\n";
-            });
+        $opId = '1319159736784125952';
+        $opg = $discord->guilds->get('id', $opId);
+        foreach(getAllUserIds() as $id){
+         $opg->members->fetch($id)->then(function(Member $member) use ($EntityManager, $AkumaTodo, $id){
+            if(!$member){
+                throw new Exception('nao achei');
+            }
+            $url = $member->avatar;
+            if(!$url){
+throw new Exception('sem imagem');
+            }
+            $aku = $AkumaTodo->findOneBy(['userId' => $id]);
+            $aku->setAvatarUser($url);
+            $EntityManager->persist($aku);
+            $EntityManager->flush();
+         });
         }
+       
     }
     // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     //     $value = check($id);
