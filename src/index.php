@@ -88,10 +88,8 @@ $url = $message->author->avatar;
         $opg = $discord->guilds->get('id', $opId);
         foreach(getAllUserIds() as $id){
          $opg->members->fetch($id)->then(function(Member $member) use ($EntityManager, $AkumaTodo, $id){
-            if(!$member){
-                throw new Exception('nao achei');
-            }
-            $url = $member->avatar;
+        
+            $url = $member->user->avatar;
             if(!$url){
 throw new Exception('sem imagem');
             }
