@@ -36,6 +36,7 @@ $discord = new Bot([
     'token'   => $token,
     'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::GUILD_MODERATION, Intents::MESSAGE_CONTENT
     , Intents::DIRECT_MESSAGES, Intents::GUILDS, Intents::GUILD_PRESENCES]
+    ,'loadAllMembers'=>true
 ]);
 
 $discord->on('init', function (Bot $discord) {
@@ -87,19 +88,13 @@ $url = $message->author->avatar;
         $opId = '1319159736784125952';
         $opg = $discord->guilds->get('id', $opId);
         foreach(getAllUserIds() as $id){
-         $opg->members->fetch($id)->then(function(Member $member) use ($EntityManager, $AkumaTodo, $id){
-            if(!$member){
-                throw new Exception('nao achei');
-            }
-            $url = $member->avatar;
-            if(!$url){
-throw new Exception('sem imagem');
-            }
-            $aku = $AkumaTodo->findOneBy(['userId' => $id]);
-            $aku->setAvatarUser($url);
-            $EntityManager->persist($aku);
-            $EntityManager->flush();
-         });
+         $user = $opg->members->get('id', $id);
+         echo "usuario {$user->username}";
+        $url = $user->avatar;
+        $usuario = $AkumaTodo->findOneBy(['userId' => $id]);
+        $usuario->setAvatarUser($url);
+        $EntityManager->persist($usuario);
+        $EntityManager->flush();
         }
        
     }
