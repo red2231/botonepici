@@ -81,7 +81,7 @@ $url = $message->author->avatar;
         $message->reply(MessageBuilder::new()->addEmbed($embed));
 
 
-    }
+    }}
     if ($conteudo === '!varrer') {
         $EntityManager = getEntityManager();
         $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
@@ -161,7 +161,7 @@ $url = $message->author->avatar;
     }
 
 
-}});
+});
 // $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
 //     $akumaManager = new AkumaManager;
 // if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
