@@ -81,6 +81,22 @@ $url = $message->author->avatar;
 
 
     }}
+    if(strcasecmp($conteudo, "+me")===0){
+        $akuma = (new AkumaManager)->GetAkumaByUserId($id);
+        $author = $message->author;
+        if($akuma){
+            $Embed = (new Embed($discord))
+            ->setTitle("A sua akuma: {$akuma->getName()}")
+            ->setColor(getColor('purple'));
+            $message->reply(MessageBuilder::new()->addEmbed($Embed));
+        }else{
+            $message->reply("Você não tem akuma no mi");
+        }
+
+
+    }
+
+
     // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     //     $value = check($id);
     //     if ($value === true) {

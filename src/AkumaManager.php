@@ -8,6 +8,7 @@ use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\Usuario;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\ResultSetMapping;
 
 
@@ -18,6 +19,12 @@ use function Discord\Proibida\getEntityManager;
 class AkumaManager
 {
     private $previousAkuma = null;
+    private EntityManager $EntityManager;
+
+public function __construct() {
+    $this->EntityManager=getEntityManager();
+}
+   
     public  function getSomeAkuma(Discord $discord)
     {
         $random = random_int(0, 100);
@@ -167,8 +174,7 @@ class AkumaManager
 
     public function removeMemberAndGetAkumaName(string $username): false|string
     {
-        $EntityManager = getEntityManager();
-        $repo = $EntityManager->getRepository(Usuario::class);
+        $repo = $this->EntityManager->getRepository(Usuario::class);
         $user = $repo->findOneBy(['username' => $username]);
     
         if (!$user) {
@@ -179,15 +185,27 @@ class AkumaManager
         $akumaName = $akuma ? $akuma->getName() : null;
     
         try {
-            $EntityManager->beginTransaction();
-            $EntityManager->remove($user);
-            $EntityManager->flush();
-            $EntityManager->commit();
+            $this->EntityManager->beginTransaction();
+            $this->EntityManager->remove($user);
+            $this->EntityManager->flush();
+            $this->EntityManager->commit();
         } catch (\Exception $e) {
-            $EntityManager->rollback();
+            $this->EntityManager->rollback();
             throw $e; 
         }
     
         return $akumaName ?? false;
+    }
+
+    public function GetAkumaByUserId(string $userId): ?Akuma
+    {
+$Repo = $this->EntityManager->getRepository(Usuario::class);
+
+return $Repo->createQueryBuilder('u')
+->join('u.akuma', 'a')
+->where('u.username=:username')
+->setParameter('username', $userId)->getQuery()->getOneOrNullResult();
+
+
     }
     }
