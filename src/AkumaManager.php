@@ -197,15 +197,16 @@ public function __construct() {
         return $akumaName ?? false;
     }
 
-    public function GetAkumaByUserId(string $userId): ?Akuma
+    public function getAkumaByUserId(string $userId): ?Akuma
     {
-$Repo = $this->EntityManager->getRepository(Usuario::class);
-
-return $Repo->createQueryBuilder('u')
-->join('u.akuma', 'a')
-->where('u.username=:username')
-->setParameter('username', $userId)->getQuery()->getOneOrNullResult();
-
-
+        $repo = $this->EntityManager->getRepository(Usuario::class);
+    
+        return $repo->createQueryBuilder('u')
+            ->select('a')
+            ->join('u.akuma', 'a')
+            ->where('u.username = :username')
+            ->setParameter('username', $userId)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
     }
