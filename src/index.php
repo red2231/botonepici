@@ -167,7 +167,7 @@ $url = $message->author->avatar;
     }
 
 
-});
+}});
 // $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
 //     $akumaManager = new AkumaManager;
 // if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
