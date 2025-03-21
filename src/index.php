@@ -7,6 +7,7 @@ require_once __DIR__ . '/redis.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__.'/utils.php';
 require_once __DIR__.'/migração.php';
+require_once __DIR__.'/teste.php';
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
@@ -97,34 +98,53 @@ $url = $message->author->avatar;
     }
 
 
-    // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
-    //     $value = check($id);
-    //     if ($value === true) {
-    //         $embed = (new AkumaManager)->getSomeAkuma($discord);
-    //         $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-    //         $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-    //         $actionRow = ActionRow::new()
-    //             ->addComponent($buttonOne)
-    //             ->addComponent($buttonTwo);
-    //         $builder = MessageBuilder::new()
-    //             ->addEmbed($embed);
-    //             if($embed->title!=='Você achou um... Nada!?'){
-    //                 $builder->addComponent($actionRow);
-    //             }
-                
-    //         $message->reply($builder);
-    //     } else {
-    //         $translate = new GoogleTranslate();
-    //         $translate->setTarget('pt-br');
+    if (strcasecmp(trim($conteudo), "!akuma") === 0) {
+        $hasrool = (new AkumaManager)->hasRoll($id);
 
-    //         $embed = new Embed($discord);
-    //         $embed->setTitle("⏳ Limite de uso diário!")
-    //               ->setDescription("Tente novamente em: " . $translate->translate($value))
-    //               ->setColor(getColor('darkblue'));
-    //         $builder = MessageBuilder::new()->addEmbed($embed);
-    //         $message->reply($builder);
-    //     }
-    // }
+        if($hasrool){
+            $embed = (new AkumaManager)->getSomeAkuma($discord);
+            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+            $actionRow = ActionRow::new()
+                ->addComponent($buttonOne)
+                ->addComponent($buttonTwo);
+            $builder = MessageBuilder::new()
+                ->addEmbed($embed);
+                if($embed->title!=='Você achou um... Nada!?'){
+                    $builder->addComponent($actionRow);
+                }
+                
+            $message->reply($builder);
+            return;
+        }
+
+        $value = check($id);
+        if ($value === true) {
+            $embed = (new AkumaManager)->getSomeAkuma($discord);
+            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+            $actionRow = ActionRow::new()
+                ->addComponent($buttonOne)
+                ->addComponent($buttonTwo);
+            $builder = MessageBuilder::new()
+                ->addEmbed($embed);
+                if($embed->title!=='Você achou um... Nada!?'){
+                    $builder->addComponent($actionRow);
+                }
+                
+            $message->reply($builder);
+        } else {
+            $translate = new GoogleTranslate();
+            $translate->setTarget('pt-br');
+
+            $embed = new Embed($discord);
+            $embed->setTitle("⏳ Limite de uso diário!")
+                  ->setDescription("Tente novamente em: " . $translate->translate($value))
+                  ->setColor(getColor('darkblue'));
+            $builder = MessageBuilder::new()->addEmbed($embed);
+            $message->reply($builder);
+        }
+    }
     
 
 
@@ -158,34 +178,46 @@ $url = $message->author->avatar;
             $message->channel->sendMessage("<@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
         }
     }
-
+    if ((str_starts_with("+add-roll <@", $conteudo) || str_starts_with("+add-roll <@!", $conteudo)) && $message->member->getPermissions()->administrator)
+    {
+$partes = explode(' ', $conteudo);
+$id = extractId( $partes[1]);
+$quantidade = $partes[2];
+if(!is_numeric($quantidade) || !$id || $quantidade>=0){
+$message->reply("Quantidade ou mensagem inválida!");
+}
+else{
+$restantes = (new AkumaManager)->setAmount($id, $quantidade);
+$message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id} e agora este usuário possui $restantes rolls restantes!");
+}
+}
 
 });
-// $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
-//     $akumaManager = new AkumaManager;
-// if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
-// $id = $interaction->data->custom_id;
-// $userId = $interaction->user->id;
-// $imagem= $interaction->user->avatar;
-// $targetId = explode('_', $id)[1];
-// if( $userId!== $targetId){
-// $interaction->respondWithMessage("Ei! Essa mensagem não deveria ser respondida por você, engraçadinho", true);
-// return;
-// }
-// $buttonId= explode('_', $id)[0];
+$discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
+    $akumaManager = new AkumaManager;
+if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
+$id = $interaction->data->custom_id;
+$userId = $interaction->user->id;
+$imagem= $interaction->user->avatar;
+$targetId = explode('_', $id)[1];
+if( $userId!== $targetId){
+$interaction->respondWithMessage("Ei! Essa mensagem não deveria ser respondida por você, engraçadinho", true);
+return;
+}
+$buttonId= explode('_', $id)[0];
 
-//     if($buttonId==='one'){
-//         $akuma  = $interaction->message->embeds[0]->footer->text;
-//         $interaction->message->delete();
-//        $akumaManager->associateUser($akuma, $userId, $imagem);
-// $interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
-// }
-// else{
-//     $interaction->message->delete();
-//     $interaction->respondWithMessage("<@{$userId}> Akuma no Mi recusada!", true);
-// }
-// }
-// });
+    if($buttonId==='one'){
+        $akuma  = $interaction->message->embeds[0]->footer->text;
+        $interaction->message->delete();
+       $akumaManager->associateUser($akuma, $userId, $imagem);
+$interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
+}
+else{
+    $interaction->message->delete();
+    $interaction->respondWithMessage("<@{$userId}> Akuma no Mi recusada!", true);
+}
+}
+});
 $discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
 $userId = $member->user->id;
 $bool = (new AkumaManager)->removeMemberAndGetAkumaName($userId);

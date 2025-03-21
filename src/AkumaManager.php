@@ -2,7 +2,7 @@
 
 namespace Discord\Proibida;
 require_once __DIR__.'/utils.php';
-
+require_once __DIR__.'/teste.php';
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
@@ -27,9 +27,9 @@ public function __construct() {
    
     public  function getSomeAkuma(Discord $discord)
     {
-        $random = random_int(0, 100);
+        $random = random();
      
-        if ($random < 30) {
+        if ($random < 46.6) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -46,26 +46,26 @@ public function __construct() {
     {
         
         $embed = new Embed($discord);
-        $random = random_int(0, 100);
+        $random = random();
         $akuma = null;
 
-        if ($random < 50) {
+        if ($random < 60) {
             
             $akuma = $this->getByRaridade('Comum');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma $tipo comum");
             $embed->setColor(getColor('blue')); 
-        } elseif ($random >= 50 && $random < 80) {
+        } elseif ($random >= 60 && $random < 90) {
             $akuma = $this->getByRaridade('Raro');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Legal! Você conseguiu uma $tipo do tipo raro!");
             $embed->setColor(getColor('yellow')); 
-        } elseif ($random >= 80 && $random < 95) {
+        } elseif ($random >= 90 && $random < 95) {
             $akuma = $this->getByRaridade('Épico');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma $tipo épica!");
             $embed->setColor(getColor('purple')); 
-        } elseif ($random >= 95 && $random < 99) {
+        } elseif ($random >= 95 && $random < 99.9) {
             $akuma = $this->getByRaridade('Lendário');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Você conseguiu uma $tipo lendária! Incrível!!");
@@ -207,5 +207,33 @@ public function __construct() {
             ->setParameter('username', $userId)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+    public function hasRoll(string $username):bool
+    {
+        $repository = $this->EntityManager->getRepository(Usuario::class);
+        $user = $repository->findOneBy(['username' => $username]);
+        if($user->getRolls()<=0){
+return false;
+        }
+        $user->setRolls($user->getRolls()-1);
+        $this->EntityManager->persist($user);
+        $this->EntityManager->flush();
+        return true;
+    }
+    function setAmount(string $username, int $quantidade):int {
+        $repository = $this->EntityManager->getRepository(Usuario::class);
+        $user = $repository->findOneBy(['username' => $username]);
+        $user->setRolls($quantidade);
+        $this->EntityManager->persist($user);
+        $this->EntityManager->flush();
+        $restantes = $user->getRolls();
+        return $restantes;
+    }
+
+    public function hasAkuma(string $username): bool
+    {
+        $repository = $this->EntityManager->getRepository(Usuario::class);
+        $user = $repository->findOneBy(['username' => $username]);
+        return $user->getAkuma !==null;
     }
     }

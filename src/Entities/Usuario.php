@@ -19,7 +19,8 @@ class Usuario
     private string $avatarUrl;
     #[ORM\OneToOne(targetEntity: Akuma::class, mappedBy: 'user', cascade: ['persist', 'refresh', 'detach'])]
     private ?Akuma $akuma = null;
-
+    #[ORM\Column(type:'integer')]
+    private int $rolls =0;
     public function __construct(string $username)
     {
         $this->username = $username;
@@ -77,5 +78,14 @@ class Usuario
     public function setUsername(string $username): self {
         $this->username = $username;
         return $this;
+    }
+
+    public function setRolls(int $quantidade)
+    {
+        $this->rolls+=$quantidade;
+    }
+    public  function getRolls():int
+    {
+        return $this->rolls;
     }
 }

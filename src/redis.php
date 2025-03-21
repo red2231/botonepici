@@ -9,6 +9,8 @@ $dotenv = Dotenv::createMutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 
 function check(string $userId): bool|string {
+
+    $has = (new AkumaManager)->hasAkuma($userId);
     $client = new Client([
         'host' => $_ENV['HOST']??'localhost',
         'port' => 6379,
@@ -16,15 +18,18 @@ function check(string $userId): bool|string {
         'password' => $_ENV['PASSWO']??null,
         
     ]);
-
+    
     $storedTimestamp = $client->get($userId);
-
+    $tempo = $has?172800: 86400;
     if (!$storedTimestamp) {
-        $client->setex($userId, 86400, Carbon::now()->timestamp);
+        $client->setex($userId, $tempo, Carbon::now()->timestamp);
         return true;
     }
 
     $expirationTime = Carbon::createFromTimestamp($storedTimestamp)->addDay();
+    if($has){
+$expirationTime->addDay();
+    }
     $now = Carbon::now();
 
     if ($now->lessThan($expirationTime)) {
