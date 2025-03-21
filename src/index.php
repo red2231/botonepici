@@ -81,26 +81,6 @@ $url = $message->author->avatar;
 
 
     }}
-    if ($conteudo === '!varrer') {
-        $EntityManager = getEntityManager();
-        $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
-        $opId = '1319159736784125952';
-        $opg = $discord->guilds->get('id', $opId);
-        foreach(getAllUserIds() as $id){
-         $opg->members->fetch($id)->then(function(Member $member) use ($EntityManager, $AkumaTodo, $id){
-        
-            $url = $member->user->avatar;
-            if(!$url){
-throw new Exception('sem imagem');
-            }
-            $aku = $AkumaTodo->findOneBy(['userId' => $id]);
-            $aku->setAvatarUser($url);
-            $EntityManager->persist($aku);
-            $EntityManager->flush();
-         });
-        }
-       
-    }
     // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     //     $value = check($id);
     //     if ($value === true) {
