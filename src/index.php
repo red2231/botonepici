@@ -5,6 +5,7 @@ namespace Discord\Proibida;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/redis.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__.'/utils.php';
 require_once __DIR__.'/migração.php';
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
@@ -18,6 +19,8 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Ban;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
+use Discord\Parts\User\User;
+use Discord\Proibida\Entities\AkumaToAdd;
 use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
@@ -77,7 +80,17 @@ $url = $message->author->avatar;
 
 
     }
+if($conteudo==='!varrer'){
+    $EntityManager = getEntityManager();
+    $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
+foreach(getAllUserIds() as $id){
+ $discord->users->fetch($id)->then(function(User $user) use ($EntityManager){
+$url = $user->avatar;
 
+
+});
+}
+}
 
 }
 

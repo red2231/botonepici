@@ -1,6 +1,9 @@
 <?php
 
+use Discord\Proibida\Entities\AkumaToAdd;
 
+use function Discord\Proibida\getEntityManager;
+require_once __DIR__.'/utils.php';
  function getAnimalRaridade()
 {
 $value = rand_float(0, 100);
@@ -32,4 +35,17 @@ function rand_float(float $min, float $max): float {
     }
     $fraction = mt_rand() / mt_getrandmax();
     return $min + $fraction * ($max - $min);
+}
+
+
+function getAllUserIds(): Generator{
+    $EntityManager = getEntityManager();
+    $repo = $EntityManager->getRepository(AkumaToAdd::class);
+    $builder = $repo->createQueryBuilder('u');
+    $query = $builder->where($builder->expr()->isNull('u.userId'));
+    $all = $query->getQuery()->getResult();
+    foreach($all as $akuma){
+yield $akuma->getUserId();
+    }
+
 }
