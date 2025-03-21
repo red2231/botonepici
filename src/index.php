@@ -84,10 +84,13 @@ if($conteudo==='!varrer'){
     $EntityManager = getEntityManager();
     $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
 foreach(getAllUserIds() as $id){
- $discord->users->fetch($id)->then(function(User $user) use ($EntityManager){
+ $discord->users->fetch($id)->then(function(User $user) use ($AkumaTodo, $id){
 $url = $user->avatar;
-
-
+$akumaToAd = $AkumaTodo->findOneBy(['userId'=>$id]);
+if(!$akumaToAd->getAvatarUser()){
+$akumaToAd->setAvatarUser($url);
+echo "$url setado";
+}
 });
 }
 }
