@@ -202,7 +202,7 @@ public function __construct() {
         return $this->EntityManager->createQueryBuilder()
             ->select('a')
             ->from('Discord\Proibida\Entities\Akuma', 'a')
-            ->join('a.usuario', 'u')
+            ->join('a.user', 'u')
             ->where('u.username = :username')
             ->setParameter('username', $userId)
             ->getQuery()
