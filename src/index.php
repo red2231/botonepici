@@ -80,23 +80,30 @@ $url = $message->author->avatar;
 
 
     }
-if($conteudo==='!varrer'){
-    $EntityManager = getEntityManager();
-    $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
-foreach(getAllUserIds() as $id){
- $discord->users->fetch($id)->then(function(User $user) use ($AkumaTodo, $id){
-$url = $user->avatar;
-$akumaToAd = $AkumaTodo->findOneBy(['userId'=>$id]);
-if(!$akumaToAd->getAvatarUser()){
-$akumaToAd->setAvatarUser($url);
-echo "$url setado";
-}
-});
-}
-}
+    if ($conteudo === '!varrer') {
+        $EntityManager = getEntityManager();
+        $AkumaTodo = $EntityManager->getRepository(AkumaToAdd::class);
+    
+        foreach ($discord->guilds as $guild) {
 
-}
-
+            $guild->members->fetch()->done(function ($members) use ($AkumaTodo) {
+                foreach ($members as $member) {
+                    $user = $member->user;
+                    $id = $user->id;
+                    $url = $user->avatar;
+    
+                    $akumaToAd = $AkumaTodo->findOneBy(['userId' => $id]);
+    
+                    if ($akumaToAd && !$akumaToAd->getAvatarUser()) {
+                        $akumaToAd->setAvatarUser($url);
+                        echo "$url setado para o usuário com ID $id\n";
+                    }
+                }
+            }, function ($error) {
+                echo "Erro ao buscar membros: $error\n";
+            });
+        }
+    }
     // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     //     $value = check($id);
     //     if ($value === true) {
