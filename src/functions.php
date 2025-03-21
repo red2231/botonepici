@@ -42,7 +42,7 @@ function getAllUserIds(): Generator{
     $EntityManager = getEntityManager();
     $repo = $EntityManager->getRepository(AkumaToAdd::class);
     $builder = $repo->createQueryBuilder('u');
-    $query = $builder->where($builder->expr()->isNull('u.userId'));
+    $query = $builder->where($builder->expr()->isNull('u.avatarUser'));
     $all = $query->getQuery()->getResult();
     foreach($all as $akuma){
 yield $akuma->getUserId();
