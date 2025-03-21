@@ -199,14 +199,14 @@ public function __construct() {
 
     public function getAkumaByUserId(string $userId): ?Akuma
     {
-        $repo = $this->EntityManager->getRepository(Usuario::class);
     
-        return $repo->createQueryBuilder('u')
-            ->select('a')
-            ->join('u.akuma', 'a')
-            ->where('u.username = :username')
-            ->setParameter('username', $userId)
-            ->getQuery()
-            ->getOneOrNullResult();
+        return $this->EntityManager->createQueryBuilder()
+        ->select('u')
+        ->from('Discord\Proibida\Entities\Usuario', 'u')
+        ->join('u.akuma','a')
+        ->where(['u.username =:username'])
+        ->setParameter('username', $userId)
+        ->getQuery()
+        ->getOneOrNullResult();
     }
     }
