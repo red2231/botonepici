@@ -188,7 +188,7 @@ $message->reply("Quantidade ou mensagem inválida!");
 }
 else{
 $restantes = (new AkumaManager)->setAmount($id, $quantidade);
-$message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id} e agora este usuário possui $restantes rolls restantes!");
+$message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id}> e agora este usuário possui $restantes rolls restantes!");
 }
 }
 
