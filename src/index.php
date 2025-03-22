@@ -178,7 +178,7 @@ $url = $message->author->avatar;
             $message->channel->sendMessage("<@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
         }
     }
-    if ((str_starts_with("+add-roll <@", $conteudo) || str_starts_with("+add-roll <@!", $conteudo)) && $message->member->getPermissions()->administrator)
+    if ((str_starts_with($conteudo, "+add-roll <@" ) || str_starts_with( $conteudo, "+add-roll <@!")) && $message->member->getPermissions()->administrator)
     {
 $partes = explode(' ', $conteudo);
 $id = extractId( $conteudo);
