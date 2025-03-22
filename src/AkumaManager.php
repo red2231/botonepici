@@ -215,7 +215,7 @@ public function __construct() {
         if($user->getRolls()<=0 || !$user){
 return false;
         }
-        $user->setRolls($user->getRolls()-1);
+        $user->setRolls(-1);
         $this->EntityManager->persist($user);
         $this->EntityManager->flush();
         return true;
