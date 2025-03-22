@@ -212,9 +212,10 @@ public function __construct() {
     {
         $repository = $this->EntityManager->getRepository(Usuario::class);
         $user = $repository->findOneBy(['username' => $username]);
-        if($user->getRolls()<=0 || !$user){
+        if(!$user || $user->getRolls()<=0){
 return false;
         }
+        
         $user->setRolls(-1);
         $this->EntityManager->persist($user);
         $this->EntityManager->flush();
