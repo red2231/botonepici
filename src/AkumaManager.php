@@ -275,7 +275,7 @@ return false;
             $targetUser->setRolls($amount);
     
             $this->EntityManager->persist($targetUser);
-            
+            $this->EntityManager->flush();
             $this->EntityManager->commit(); 
             return true;
         } catch (\Exception $e) {
