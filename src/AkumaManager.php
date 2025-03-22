@@ -255,4 +255,37 @@ return false;
         ->setParameter('username', $username);
         return (int) $quantidade->getQuery()->getSingleScalarResult();
     }
+    public function transferRolls(string $sourceId, string $targetId, int $amount): bool
+    {
+        $this->EntityManager->beginTransaction(); 
+    
+        try {
+            $user = $this->getUserByUsername($sourceId);
+            
+            $user->setRolls( -$amount);
+            
+            if ($user->getRolls() < 0) {
+                $this->EntityManager->rollback(); 
+                return false;
+            }
+            
+            $this->EntityManager->persist($user);
+    
+            $targetUser = $this->getUserByUsername($targetId);
+            $targetUser->setRolls($amount);
+    
+            $this->EntityManager->persist($targetUser);
+            
+            $this->EntityManager->commit(); 
+            return true;
+        } catch (\Exception $e) {
+            $this->EntityManager->rollback(); 
+            throw $e; 
+        }
+    }
+    public function getUserByUsername(string $username):Usuario
+    {
+        return $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
+    }
+
     }

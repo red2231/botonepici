@@ -20,9 +20,6 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Ban;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
-use Discord\Parts\User\User;
-use Discord\Proibida\Entities\Akuma;
-use Discord\Proibida\Entities\AkumaToAdd;
 use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
@@ -99,7 +96,17 @@ $url = $message->author->avatar;
 
 
     }
-
+if(str_starts_with($conteudo, '+rollt <@')){
+$partes = explode(' ', $conteudo);
+$targetid = extractId($conteudo);
+$quantidade = extractAmount($conteudo);
+$transferiu = (new AkumaManager)->transferRolls($id, $targetid, $quantidade);
+if($transferiu ===true){
+$message->reply("Transferência realizada com sucesso para <@{$targetid}>");
+}else{
+    $message->reply("Erro na transação! Talvez você não tenha rolls suficientes");
+}
+}
 
     // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     //     $hasrool = (new AkumaManager)->hasRoll($id);
