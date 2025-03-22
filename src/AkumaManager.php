@@ -244,4 +244,15 @@ return false;
         $user = $repository->findOneBy(['username' => $username]);
         return $user->getAkuma !==null;
     }
+
+    public function getRollsByUsername(string $username):int
+    {
+        $builder = $this->EntityManager->createQueryBuilder();
+        $quantidade = $builder
+        ->select('u.rolls')
+        ->from(Usuario::class, 'u')
+        ->where('u.username =:username')
+        ->setParameter('username', $username);
+        return $quantidade->getQuery()->getOneOrNullResult();
+    }
     }

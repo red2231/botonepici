@@ -21,6 +21,7 @@ use Discord\Parts\Guild\Ban;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
 use Discord\Parts\User\User;
+use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\AkumaToAdd;
 use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
@@ -193,7 +194,10 @@ $restantes = (new AkumaManager)->setAmount($id, $quantidade);
 $message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id}> e agora este usuário possui $restantes rolls restantes!");
 }
 }
-
+if(strcasecmp($conteudo, '+myrolls') ===0){
+$quantidade = (new AkumaManager)->getRollsByUsername($id);
+$message->reply("Você possui $quantidade rolls restantes");
+}
 });
 $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
     $akumaManager = new AkumaManager;
