@@ -253,6 +253,6 @@ return false;
         ->from('Discord\Proibida\Entities\Usuario', 'u')
         ->where('u.username =:username')
         ->setParameter('username', $username);
-        return $quantidade->getQuery()->getOneOrNullResult();
+        return (int) $quantidade->getQuery()->getSingleScalarResult();
     }
     }
