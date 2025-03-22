@@ -48,10 +48,11 @@ static $processedMessages = [];
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
     $id = $message->author->id;
     $url = $message->author->avatar;
-    (new AkumaManager)->cadastrar($id, $url);
+
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
+    (new AkumaManager)->cadastrar($id, $url);
     if (count($processedMessages) >= 200) {
         array_shift($processedMessages);
     }
