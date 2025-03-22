@@ -250,7 +250,7 @@ return false;
         $builder = $this->EntityManager->createQueryBuilder();
         $quantidade = $builder
         ->select('u.rolls')
-        ->from(Usuario::class, 'u')
+        ->from('Discord\Proibida\Entities\Usuario', 'u')
         ->where('u.username =:username')
         ->setParameter('username', $username);
         return $quantidade->getQuery()->getOneOrNullResult();
