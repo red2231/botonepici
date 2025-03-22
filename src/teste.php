@@ -10,8 +10,8 @@ function random(): float {
     $biased = pow($bias, 3) * 100; 
     return $biased;
 }
-function extractId(string $raw) : string {
-    if(preg_match('/<@!?(\d+)>/', $raw, $matches)){
+function extractId(string $raw) : string|false {
+    if(preg_match('/<@!?([\w]+)>/', $raw, $matches)){
         return $matches[1];
     }
     return false;
@@ -24,5 +24,5 @@ function extractAmount(string $raw) : int {
     return $quantidade;
 }
 
-echo extractAmount("+add-roll <@2432424324234234> 5");
+echo extractId("+add-roll <@2432424324234234> 5");
 
