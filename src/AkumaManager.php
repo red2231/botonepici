@@ -83,7 +83,14 @@ public function __construct() {
         
         return $embed;
     }
-
+    public function cadastrar(string $userId, string $avatarUrl){
+if(is_null( $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $userId]) )){
+$user = new Usuario($userId);
+$user->setAvatarUrl($avatarUrl);
+$this->EntityManager->persist($user);
+$this->EntityManager->flush();
+}
+}
    private function getByRaridade(string $raridade):Akuma
     {
         $entityManager = getEntityManager();
