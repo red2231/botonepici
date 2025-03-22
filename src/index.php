@@ -101,53 +101,53 @@ $url = $message->author->avatar;
     }
 
 
-    if (strcasecmp(trim($conteudo), "!akuma") === 0) {
-        $hasrool = (new AkumaManager)->hasRoll($id);
+    // if (strcasecmp(trim($conteudo), "!akuma") === 0) {
+    //     $hasrool = (new AkumaManager)->hasRoll($id);
 
-        if($hasrool ===true){
-            $embed = (new AkumaManager)->getSomeAkuma($discord);
-            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-            $actionRow = ActionRow::new()
-                ->addComponent($buttonOne)
-                ->addComponent($buttonTwo);
-            $builder = MessageBuilder::new()
-                ->addEmbed($embed);
-                if($embed->title!=='Você achou um... Nada!?'){
-                    $builder->addComponent($actionRow);
-                }
+    //     if($hasrool ===true){
+    //         $embed = (new AkumaManager)->getSomeAkuma($discord);
+    //         $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+    //         $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+    //         $actionRow = ActionRow::new()
+    //             ->addComponent($buttonOne)
+    //             ->addComponent($buttonTwo);
+    //         $builder = MessageBuilder::new()
+    //             ->addEmbed($embed);
+    //             if($embed->title!=='Você achou um... Nada!?'){
+    //                 $builder->addComponent($actionRow);
+    //             }
                 
-            $message->reply($builder);
-            return;
-        }
+    //         $message->reply($builder);
+    //         return;
+    //     }
 
-        $value = check($id);
-        if ($value === true) {
-            $embed = (new AkumaManager)->getSomeAkuma($discord);
-            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-            $actionRow = ActionRow::new()
-                ->addComponent($buttonOne)
-                ->addComponent($buttonTwo);
-            $builder = MessageBuilder::new()
-                ->addEmbed($embed);
-                if($embed->title!=='Você achou um... Nada!?'){
-                    $builder->addComponent($actionRow);
-                }
+    //     $value = check($id);
+    //     if ($value === true) {
+    //         $embed = (new AkumaManager)->getSomeAkuma($discord);
+    //         $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+    //         $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+    //         $actionRow = ActionRow::new()
+    //             ->addComponent($buttonOne)
+    //             ->addComponent($buttonTwo);
+    //         $builder = MessageBuilder::new()
+    //             ->addEmbed($embed);
+    //             if($embed->title!=='Você achou um... Nada!?'){
+    //                 $builder->addComponent($actionRow);
+    //             }
                 
-            $message->reply($builder);
-        } else {
-            $translate = new GoogleTranslate();
-            $translate->setTarget('pt-br');
+    //         $message->reply($builder);
+    //     } else {
+    //         $translate = new GoogleTranslate();
+    //         $translate->setTarget('pt-br');
 
-            $embed = new Embed($discord);
-            $embed->setTitle("⏳ Limite de uso diário!")
-                  ->setDescription("Tente novamente em: " . $translate->translate($value))
-                  ->setColor(getColor('darkblue'));
-            $builder = MessageBuilder::new()->addEmbed($embed);
-            $message->reply($builder);
-        }
-    }
+    //         $embed = new Embed($discord);
+    //         $embed->setTitle("⏳ Limite de uso diário!")
+    //               ->setDescription("Tente novamente em: " . $translate->translate($value))
+    //               ->setColor(getColor('darkblue'));
+    //         $builder = MessageBuilder::new()->addEmbed($embed);
+    //         $message->reply($builder);
+    //     }
+    // }
     
 
 
