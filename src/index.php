@@ -101,7 +101,7 @@ $url = $message->author->avatar;
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
         $hasrool = (new AkumaManager)->hasRoll($id);
 
-        if($hasrool){
+        if($hasrool ===true){
             $embed = (new AkumaManager)->getSomeAkuma($discord);
             $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
             $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
