@@ -181,7 +181,7 @@ $url = $message->author->avatar;
     if ((str_starts_with("+add-roll <@", $conteudo) || str_starts_with("+add-roll <@!", $conteudo)) && $message->member->getPermissions()->administrator)
     {
 $partes = explode(' ', $conteudo);
-$id = extractId( $partes[1]);
+$id = extractId( $conteudo);
 $quantidade = $partes[2];
 if(!is_numeric($quantidade) || !$id || $quantidade>=0){
 $message->reply("Quantidade ou mensagem inválida!");
