@@ -20,7 +20,7 @@ function check(string $userId): bool|string {
     ]);
     
     $storedTimestamp = $client->get($userId);
-    $tempo = $has?172800: 86400;
+    $tempo = $has?86400: 172800 ;
     if (!$storedTimestamp) {
         $client->setex($userId, $tempo, Carbon::now()->timestamp);
         return true;
