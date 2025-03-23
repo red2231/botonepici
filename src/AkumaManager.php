@@ -82,7 +82,7 @@ class AkumaManager
     public function cadastrar(string $userId, string $avatarUrl){
         $EntityManager=getEntityManager();
 
-if(is_null( $this->$EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$userId]))){
+if(is_null($EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$userId]))){
     
 $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
