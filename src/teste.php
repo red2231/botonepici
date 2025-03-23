@@ -18,11 +18,16 @@ function extractId(string $raw) : string|false {
 }
 // var_dump( Permission::ROLE_PERMISSIONS['administrator']);
 
-function extractAmount(string $raw) : int {
+function extractAmount(string $raw){
     $partes = explode(' ', $raw);
     $quantidade = $partes[2];
     return $quantidade;
 }
+function extractAkuma(string $raw) : string {
+    $partes = explode(' ', $raw);
+    $akuma = implode(' ', array_slice($partes, 2));
+    return $akuma;
+}
 
-echo extractId("+add-roll <@2432424324234234> 5");
+echo extractAkuma("+set-akuma <@32432432432> Goro Goro no Mi");
 

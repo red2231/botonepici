@@ -93,9 +93,24 @@ $url = $message->author->avatar;
         }else{
             $message->reply("Você não tem akuma no mi");
         }
-
+        
 
     }
+    if(str_starts_with($conteudo, '+set-akuma <@') && $message->member->getPermissions()->administrator){
+        $targetId = extractId($conteudo);
+        $akuma = extractAkuma($conteudo);
+        $setado = (new AkumaManager)->setAkumaFromAdmin($targetId, $akuma);
+
+        if($setado ===true){
+$message->reply("O usuário(a) <@{$targetId}> teve a akuma $akuma definida");
+        }else{
+            $message->reply("Usuário ou Akuma não foram achados!");
+        }
+
+    }
+
+
+
 if(str_starts_with($conteudo, '+rollt <@')){
 $partes = explode(' ', $conteudo);
 $targetid = extractId($conteudo);

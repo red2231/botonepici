@@ -288,5 +288,25 @@ return false;
     {
         return $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
     }
+    public function getAkumaByName(string $name):?Akuma
+    {
+        return $this->EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $name]);
+    }
 
+
+    public function setAkumaFromAdmin(string $targetId, string $akuma)
+    {
+        $user = $this->getUserByUsername($targetId);
+        
+        $akuma = $this->getAkumaByName($akuma);
+        if(!$user || !$akuma){
+            return false;
+                    }   
+                    $user->setAkuma($akuma);
+$this->EntityManager->persist($user);
+$this->EntityManager->flush();
+return true;
+
+
+    }
     }
