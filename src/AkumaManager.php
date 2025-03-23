@@ -145,7 +145,7 @@ $EntityManager->close();
     'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
     return $images[array_rand($images)];
     }
-    public  function associateUser(string $akuma, string $username, string $url)
+    public  function associateUser(string $akuma, string $username)
     {
    $EntityManager = getEntityManager();
    
@@ -261,7 +261,10 @@ return false;
     {
        
         $user = $this->getUserByUsername($username);
-        return !is_null($user) && !is_null($user->getAkuma());    }
+
+        return $user==null || $user->getAkuma()==null;
+    
+    }
 
     public function getRollsByUsername(string $username):int
     {

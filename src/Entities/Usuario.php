@@ -33,7 +33,7 @@ class Usuario
             $akuma->setUser($this);
             }
     }
-   public function getAkuma():Akuma
+   public function getAkuma():?Akuma
    {
     return $this->akuma;
    }
