@@ -83,12 +83,14 @@ class AkumaManager
         $EntityManager=getEntityManager();
 
 if(is_null( $this->getUserByUsername($userId))){
+    
 $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
 $EntityManager->persist($user);
 $EntityManager->flush();
 $EntityManager->close();
 }
+$EntityManager->close();
 }
    private function getByRaridade(string $raridade):Akuma
     {
@@ -148,10 +150,9 @@ $EntityManager->close();
    $EntityManager = getEntityManager();
    
         $akumaRepo = $EntityManager->getRepository(Akuma::class);
-        $user = new Usuario($username);
+        $user = $this->getUserByUsername($username);
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
         $user->setAkuma($akum);
-        $user->setAvatarUrl($url);
         $EntityManager->persist($user);
         
         $EntityManager->flush();

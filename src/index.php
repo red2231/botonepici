@@ -58,30 +58,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
 
     $conteudo = $message->content;
 
-    $migracao ='1352018430982619348';
-
-if($message->channel_id===$migracao){
-$userId = $message->author->id;
-$url = $message->author->avatar;
-
-    $bool = frontHandler($conteudo,$userId, $url );
-    if($bool ===true){
-        $embed =( new Embed($discord))
-        ->setTitle("Tudo certo!")
-        ->setColor(getColor('blue'))
-        ->setFooter('A akuma no mi foi reservada!');
-            $message->reply(MessageBuilder::new()->addEmbed($embed));
-
-    }
-    else{
-        $embed = (new Embed($discord))
-        ->setTitle('Akuma não encontrada! Mas não se preocupe')
-        ->setColor(getColor('red'))
-        ->setDescription("Sua akuma foi recebida mesmo assim e será analisada e 'setada' mesmo assim. Relaxe!");
-        $message->reply(MessageBuilder::new()->addEmbed($embed));
-
-
-    }}
+    
     if(strcasecmp($conteudo, "+me")===0){
         $akuma = (new AkumaManager)->GetAkumaByUserId($id);
         $author = $message->author;
