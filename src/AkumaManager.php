@@ -134,7 +134,7 @@ $this->EntityManager->close();
         
         
             $this->previousAkuma = $akuma->getId();
-        
+        $entityManager->close();
         
         return $akuma;
     }
@@ -154,6 +154,7 @@ $this->EntityManager->close();
         $user->setAkuma($akum);
         $user->setAvatarUrl($url);
         $EntityManager->persist($user);
+        
         $EntityManager->flush();
         $this->EntityManager->close();
 
@@ -168,14 +169,15 @@ $this->EntityManager->close();
         }
 
 
-        return $EntityManager->createQueryBuilder()
+        $usuario= $EntityManager->createQueryBuilder()
             ->select('u')
             ->from('Discord\Proibida\Entities\Usuario', 'u')
             ->join('u.akuma', 'a')
             ->where('a.name = :name')
             ->setParameter('name', $name)
             ->getQuery()->getOneOrNullResult();
-  
+  $EntityManager->close();
+  return $usuario;
 
         
     }
@@ -200,7 +202,7 @@ $this->EntityManager->close();
 
         } catch (\Exception $e) {
             $this->EntityManager->rollback();
-            $this->EntityManager->close();
+       
 
             throw $e; 
         }
@@ -210,7 +212,7 @@ $this->EntityManager->close();
 
     public function getAkumaByUserId(string $userId): ?Akuma
     {
-        return $this->EntityManager->createQueryBuilder()
+        $user= $this->EntityManager->createQueryBuilder()
             ->select('a')
             ->from('Discord\Proibida\Entities\Akuma', 'a')
             ->join('a.user', 'u')
@@ -218,6 +220,10 @@ $this->EntityManager->close();
             ->setParameter('username', $userId)
             ->getQuery()
             ->getOneOrNullResult();
+
+        $this->EntityManager->close();
+        return $user;
+
     }
     public function hasRoll(string $username):bool
     {
@@ -258,6 +264,7 @@ return false;
         ->from('Discord\Proibida\Entities\Usuario', 'u')
         ->where('u.username =:username')
         ->setParameter('username', $username);
+        $this->EntityManager->close();
         return (int) $quantidade->getQuery()->getSingleScalarResult();
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): bool
@@ -298,11 +305,15 @@ return false;
     }
     public function getUserByUsername(string $username):?Usuario
     {
-        return $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
+        $user = $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
+        $this->EntityManager->close();
+    return $user;
     }
     public function getAkumaByName(string $name):?Akuma
     {
-        return $this->EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $name]);
+        $akuma= $this->EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $name]);
+        $this->EntityManager->close();
+        return $akuma;
     }
 
 
@@ -317,6 +328,7 @@ return false;
                     $user->setAkuma($akuma);
 $this->EntityManager->persist($user);
 $this->EntityManager->flush();
+$this->EntityManager->close();
 return true;
 
 
