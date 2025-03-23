@@ -88,6 +88,7 @@ $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
 $this->EntityManager->persist($user);
 $this->EntityManager->flush();
+$this->EntityManager->close();
 }
 }
    private function getByRaridade(string $raridade):Akuma
@@ -154,6 +155,8 @@ $this->EntityManager->flush();
         $user->setAvatarUrl($url);
         $EntityManager->persist($user);
         $EntityManager->flush();
+        $this->EntityManager->close();
+
     }
     public function getAkumaUserOrNull(string $name): Usuario|null|false
     {
@@ -193,8 +196,12 @@ $this->EntityManager->flush();
             $this->EntityManager->remove($user);
             $this->EntityManager->flush();
             $this->EntityManager->commit();
+            $this->EntityManager->close();
+
         } catch (\Exception $e) {
             $this->EntityManager->rollback();
+            $this->EntityManager->close();
+
             throw $e; 
         }
     
@@ -222,6 +229,8 @@ return false;
         $user->setRolls(-1);
         $this->EntityManager->persist($user);
         $this->EntityManager->flush();
+        $this->EntityManager->close();
+
         return true;
     }
     function setAmount(string $username, int $quantidade):int {
@@ -230,6 +239,8 @@ return false;
         $this->EntityManager->persist($user);
         $this->EntityManager->flush();
         $restantes = $user->getRolls();
+        $this->EntityManager->close();
+
         return $restantes;
     }
 
@@ -277,6 +288,8 @@ return false;
             $this->EntityManager->persist($targetUser);
             $this->EntityManager->flush();
             $this->EntityManager->commit(); 
+            $this->EntityManager->close();
+
             return true;
         } catch (\Exception $e) {
             $this->EntityManager->rollback(); 
