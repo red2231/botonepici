@@ -18,7 +18,7 @@ function check(string $userId): bool|string {
     ]);
 
    
-    $tempo = $has ? 172800 : 86400;
+    $tempo = $has ? 129600 : 86400;
     
     $storedTimestamp = $client->get($userId);
     if (!$storedTimestamp) {
