@@ -88,9 +88,9 @@ $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
 $EntityManager->persist($user);
 $EntityManager->flush();
-$EntityManager->close();
+$EntityManager->getConnection()->close();
 }
-$EntityManager->close();
+$EntityManager->getConnection()->close();
 }
    private function getByRaridade(string $raridade):Akuma
     {
@@ -135,7 +135,7 @@ $EntityManager->close();
         
         
             $this->previousAkuma = $akuma->getId();
-        $entityManager->close();
+        $entityManager->getConnection()->close();
         
         return $akuma;
     }
@@ -155,7 +155,7 @@ $EntityManager->close();
         $user->setAkuma($akum);
         
         $EntityManager->flush();
-        $EntityManager->close();
+        $EntityManager->getConnection()->close();
 
     }
     public function getAkumaUserOrNull(string $name): Usuario|null|false
@@ -175,7 +175,7 @@ $EntityManager->close();
             ->where('a.name = :name')
             ->setParameter('name', $name)
             ->getQuery()->getOneOrNullResult();
-  $EntityManager->close();
+            $EntityManager->getConnection()->close();
   
   return $usuario;
 
@@ -186,7 +186,7 @@ $EntityManager->close();
     {        $EntityManager = getEntityManager();
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        $EntityManager = getEntityManager();
+       
 
         if (!$user) {
             return false;
@@ -200,7 +200,7 @@ $EntityManager->close();
             $EntityManager->remove($user);
             $EntityManager->flush();
             $EntityManager->commit();
-            $EntityManager->close();
+            $EntityManager->getConnection()->close();
 
         } catch (\Exception $e) {
             $EntityManager->rollback();
@@ -225,8 +225,8 @@ $EntityManager->close();
             ->getQuery()
             ->getOneOrNullResult();
 
-        $EntityManager->close();
-        return $user;
+            $EntityManager->getConnection()->close();
+            return $user;
 
     }
     public function hasRoll(string $username):bool
@@ -241,7 +241,7 @@ return false;
         $user->setRolls(-1);
         $EntityManager->persist($user);
         $EntityManager->flush();
-        $EntityManager->close();
+        $EntityManager->getConnection()->close();
 
         return true;
     }
@@ -252,7 +252,7 @@ return false;
         $user->setRolls($quantidade);
         $EntityManager->flush();
         $restantes = $user->getRolls();
-        $EntityManager->close();
+        $EntityManager->getConnection()->close();
 
         return $restantes;
     }
@@ -262,7 +262,7 @@ return false;
         $EntityManager = getEntityManager();
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        $EntityManager->close();
+        $EntityManager->getConnection()->close();
         return $user==null || $user->getAkuma()==null;
     
     }
@@ -279,7 +279,7 @@ return false;
         ->setParameter('username', $username);
         
         $quantidade= $quantidade->getQuery()->getSingleScalarResult();
-        $EntityManager->close();
+        $EntityManager->getConnection()->close();
         return $quantidade;
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): bool
@@ -310,7 +310,7 @@ return false;
     
             $EntityManager->flush();
             $EntityManager->commit(); 
-            $EntityManager->close();
+            $EntityManager->getConnection()->close();
 
             return true;
         } catch (\Exception $e) {
@@ -333,7 +333,7 @@ return false;
                     }   
                     $user->setAkuma($akuma);
 $EntityManager->flush();
-$EntityManager->close();
+$EntityManager->getConnection()->close();
 return true;
 
 
