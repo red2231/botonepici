@@ -54,12 +54,12 @@ public function __construct() {
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma $tipo comum");
             $embed->setColor(getColor('blue')); 
-        } elseif ($random >= 60 && $random < 90) {
+        } elseif ($random >= 60 && $random < 85) {
             $akuma = $this->getByRaridade('Raro');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Legal! Você conseguiu uma $tipo do tipo raro!");
             $embed->setColor(getColor('yellow')); 
-        } elseif ($random >= 90 && $random < 95) {
+        } elseif ($random >= 85 && $random < 95) {
             $akuma = $this->getByRaridade('Épico');
             $tipo = $akuma->getTipo()->value;
             $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma $tipo épica!");
