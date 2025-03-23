@@ -23,7 +23,7 @@ class AkumaManager
    
     public  function getSomeAkuma(Discord $discord)
     {
-        $random = random();
+        $random = random_int(0, 100);
      
         if ($random < 50) {
             $embed = new Embed($discord);
