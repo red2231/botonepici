@@ -104,7 +104,7 @@ $transferiu = (new AkumaManager)->transferRolls($id, $targetid, $quantidade);
 if($transferiu ===true){
 $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
 }else{
-    $message->reply("Erro na transação! Talvez você não tenha rolls suficientes");
+    $message->reply("Erro na transação! Talvez você não tenha rolls suficientes ou o usuário destino não exista!");
 }
 }
 

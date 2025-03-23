@@ -236,7 +236,8 @@ return false;
     public function hasAkuma(string $username): bool
     {
        
-        return $this->getUserByUsername($username)->getAkuma() !==null;
+        $user = $this->getUserByUsername($username);
+        return is_null($user) || is_null( $user->getAkuma());
     }
 
     public function getRollsByUsername(string $username):int
@@ -266,6 +267,12 @@ return false;
             $this->EntityManager->persist($user);
     
             $targetUser = $this->getUserByUsername($targetId);
+            
+            if(!$targetUser){
+                $this->EntityManager->rollback(); 
+
+return false;
+            }
             $targetUser->setRolls($amount);
     
             $this->EntityManager->persist($targetUser);
@@ -277,7 +284,7 @@ return false;
             throw $e; 
         }
     }
-    public function getUserByUsername(string $username):Usuario
+    public function getUserByUsername(string $username):?Usuario
     {
         return $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
     }
