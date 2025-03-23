@@ -237,8 +237,7 @@ return false;
     {
        
         $user = $this->getUserByUsername($username);
-        return is_null($user) || is_null( $user->getAkuma());
-    }
+        return !is_null($user) && !is_null($user->getAkuma());    }
 
     public function getRollsByUsername(string $username):int
     {
