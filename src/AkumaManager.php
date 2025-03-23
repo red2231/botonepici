@@ -321,9 +321,9 @@ return false;
     {
         $EntityManager = getEntityManager();
 
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
-        $EntityManager->close();
-    return $user;
+   return     $EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
+      
+    
     }
     public function getAkumaByName(string $name):?Akuma
     {
