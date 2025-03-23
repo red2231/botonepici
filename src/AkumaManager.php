@@ -153,7 +153,6 @@ $EntityManager->close();
         $user = $this->getUserByUsername($username);
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
         $user->setAkuma($akum);
-        $EntityManager->persist($user);
         
         $EntityManager->flush();
         $EntityManager->close();
@@ -249,7 +248,6 @@ return false;
 
         $user = $this->getUserByUsername($username);
         $user->setRolls($quantidade);
-        $EntityManager->persist($user);
         $EntityManager->flush();
         $restantes = $user->getRolls();
         $EntityManager->close();
@@ -295,7 +293,6 @@ return false;
                 return false;
             }
             
-            $EntityManager->persist($user);
     
             $targetUser = $this->getUserByUsername($targetId);
             
@@ -306,7 +303,6 @@ return false;
             }
             $targetUser->setRolls($amount);
     
-            $EntityManager->persist($targetUser);
             $EntityManager->flush();
             $EntityManager->commit(); 
             $EntityManager->close();
@@ -346,7 +342,6 @@ return false;
             return false;
                     }   
                     $user->setAkuma($akuma);
-$EntityManager->persist($user);
 $EntityManager->flush();
 $EntityManager->close();
 return true;
