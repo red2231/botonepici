@@ -82,7 +82,7 @@ class AkumaManager
     public function cadastrar(string $userId, string $avatarUrl){
         $EntityManager=getEntityManager();
 
-if(is_null( $this->getUserByUsername($userId))){
+if(is_null( $this->$EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$userId]))){
     
 $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
@@ -150,7 +150,7 @@ $EntityManager->close();
    $EntityManager = getEntityManager();
    
         $akumaRepo = $EntityManager->getRepository(Akuma::class);
-        $user = $this->getUserByUsername($username);
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);;
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
         $user->setAkuma($akum);
         
@@ -176,14 +176,16 @@ $EntityManager->close();
             ->setParameter('name', $name)
             ->getQuery()->getOneOrNullResult();
   $EntityManager->close();
+  
   return $usuario;
 
         
     }
 
     public function removeMemberAndGetAkumaName(string $username): false|string
-    {
-        $user = $this->getUserByUsername($username);
+    {        $EntityManager = getEntityManager();
+
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         $EntityManager = getEntityManager();
 
         if (!$user) {
@@ -231,7 +233,7 @@ $EntityManager->close();
     {
         $EntityManager = getEntityManager();
 
-        $user = $this->getUserByUsername($username);
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         if(!$user || $user->getRolls()<=0){
 return false;
         }
@@ -246,7 +248,7 @@ return false;
     function setAmount(string $username, int $quantidade):int {
         $EntityManager = getEntityManager();
 
-        $user = $this->getUserByUsername($username);
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         $user->setRolls($quantidade);
         $EntityManager->flush();
         $restantes = $user->getRolls();
@@ -257,9 +259,10 @@ return false;
 
     public function hasAkuma(string $username): bool
     {
-       
-        $user = $this->getUserByUsername($username);
+        $EntityManager = getEntityManager();
 
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
+        $EntityManager->close();
         return $user==null || $user->getAkuma()==null;
     
     }
@@ -274,8 +277,10 @@ return false;
         ->from('Discord\Proibida\Entities\Usuario', 'u')
         ->where('u.username =:username')
         ->setParameter('username', $username);
+        
+        $quantidade= $quantidade->getQuery()->getSingleScalarResult();
         $EntityManager->close();
-        return (int) $quantidade->getQuery()->getSingleScalarResult();
+        return $quantidade;
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): bool
     {
@@ -284,7 +289,7 @@ return false;
         $EntityManager->beginTransaction(); 
     
         try {
-            $user = $this->getUserByUsername($sourceId);
+            $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$sourceId]);
             
             $user->setRolls( -$amount);
             
@@ -294,7 +299,7 @@ return false;
             }
             
     
-            $targetUser = $this->getUserByUsername($targetId);
+            $targetUser = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
             
             if(!$targetUser){
                 $EntityManager->rollback(); 
@@ -313,31 +318,16 @@ return false;
             throw $e; 
         }
     }
-    public function getUserByUsername(string $username):?Usuario
-    {
-        $EntityManager = getEntityManager();
-
-   return     $EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $username]);
-      
-    
-    }
-    public function getAkumaByName(string $name):?Akuma
-    {
-        $EntityManager = getEntityManager();
-
-        $akuma= $EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $name]);
-        $EntityManager->close();
-        return $akuma;
-    }
+   
 
 
     public function setAkumaFromAdmin(string $targetId, string $akuma)
     {
         $EntityManager = getEntityManager();
 
-        $user = $this->getUserByUsername($targetId);
+        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
         
-        $akuma = $this->getAkumaByName($akuma);
+        $akuma = $EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $akuma]);
         if(!$user || !$akuma){
             return false;
                     }   
