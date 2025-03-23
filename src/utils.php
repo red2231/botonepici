@@ -22,11 +22,6 @@ function getEntityManager(): EntityManager{
         paths: [__DIR__ . '/Entities'],
         isDevMode: true,
     );
-    $EntityManager = new EntityManager($connec, $config);
-    return $EntityManager;
+    return     new EntityManager($connec, $config)    ;
 }
 
-
-function extractUserIdFromRaw(string $raw){
-
-}

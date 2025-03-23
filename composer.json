@@ -15,7 +15,7 @@
     "autoload": {
         "psr-4": {
             "Discord\\Proibida\\": "src/",
-            "Doctrine\\Cli\\":"vendor/bin/"
+            "Tests\\":"tests/"
         }
     },
     "authors": [
@@ -23,5 +23,8 @@
             "name": "ErickVerissimoo",
             "email": "erickverissimodasilva144@gmail.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "pestphp/pest": "^3.7"
+    }
 }

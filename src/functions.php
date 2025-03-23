@@ -38,14 +38,3 @@ function rand_float(float $min, float $max): float {
 }
 
 
-function getAllUserIds(): Generator{
-    $EntityManager = getEntityManager();
-    $repo = $EntityManager->getRepository(AkumaToAdd::class);
-    $builder = $repo->createQueryBuilder('u');
-    $query = $builder->where($builder->expr()->isNull('u.avatarUser'));
-    $all = $query->getQuery()->getResult();
-    foreach($all as $akuma){
-yield $akuma->getUserId();
-    }
-
-}

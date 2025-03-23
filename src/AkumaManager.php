@@ -3,7 +3,6 @@
 namespace Discord\Proibida;
 require_once __DIR__.'/utils.php';
 require_once __DIR__.'/teste.php';
-use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
@@ -29,7 +28,7 @@ public function __construct() {
     {
         $random = random();
      
-        if ($random < 46.6) {
+        if ($random < 50) {
             $embed = new Embed($discord);
             $embed->setTitle('Você achou um... Nada!?');
             $embed->setColor(getColor('red'));
@@ -84,7 +83,7 @@ public function __construct() {
         return $embed;
     }
     public function cadastrar(string $userId, string $avatarUrl){
-if(is_null( $this->EntityManager->getRepository(Usuario::class)->findOneBy(['username' => $userId]) )){
+if(is_null( $this->getUserByUsername($userId))){
 $user = new Usuario($userId);
 $user->setAvatarUrl($avatarUrl);
 $this->EntityManager->persist($user);
@@ -148,7 +147,6 @@ $this->EntityManager->flush();
     {
    $EntityManager = getEntityManager();
    
-        $userRepo = $EntityManager->getRepository(Usuario::class);
         $akumaRepo = $EntityManager->getRepository(Akuma::class);
         $user = new Usuario($username);
         $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
@@ -167,22 +165,21 @@ $this->EntityManager->flush();
         }
 
 
-        $query = $EntityManager->createQueryBuilder()
+        return $EntityManager->createQueryBuilder()
             ->select('u')
             ->from('Discord\Proibida\Entities\Usuario', 'u')
             ->join('u.akuma', 'a')
             ->where('a.name = :name')
             ->setParameter('name', $name)
-            ->getQuery();
-    return $query->getOneOrNullResult();
+            ->getQuery()->getOneOrNullResult();
+  
 
         
     }
 
     public function removeMemberAndGetAkumaName(string $username): false|string
     {
-        $repo = $this->EntityManager->getRepository(Usuario::class);
-        $user = $repo->findOneBy(['username' => $username]);
+        $user = $this->getUserByUsername($username);
     
         if (!$user) {
             return false;
@@ -217,8 +214,7 @@ $this->EntityManager->flush();
     }
     public function hasRoll(string $username):bool
     {
-        $repository = $this->EntityManager->getRepository(Usuario::class);
-        $user = $repository->findOneBy(['username' => $username]);
+        $user = $this->getUserByUsername($username);
         if(!$user || $user->getRolls()<=0){
 return false;
         }
@@ -229,8 +225,7 @@ return false;
         return true;
     }
     function setAmount(string $username, int $quantidade):int {
-        $repository = $this->EntityManager->getRepository(Usuario::class);
-        $user = $repository->findOneBy(['username' => $username]);
+        $user = $this->getUserByUsername($username);
         $user->setRolls($quantidade);
         $this->EntityManager->persist($user);
         $this->EntityManager->flush();
@@ -240,9 +235,8 @@ return false;
 
     public function hasAkuma(string $username): bool
     {
-        $repository = $this->EntityManager->getRepository(Usuario::class);
-        $user = $repository->findOneBy(['username' => $username]);
-        return $user->getAkuma !==null;
+       
+        return $this->getUserByUsername($username)->getAkuma() !==null;
     }
 
     public function getRollsByUsername(string $username):int
