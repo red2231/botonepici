@@ -7,7 +7,7 @@ use Discord\Parts\Permissions\Permission;
 
 function random(): float {
     $bias = mt_rand() / mt_getrandmax();
-    $biased = pow($bias, 3) * 100; 
+    $biased = pow($bias, 2.7) * 100; 
     return $biased;
 }
 function extractId(string $raw) : string|false {

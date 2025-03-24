@@ -73,7 +73,7 @@ class AkumaManager
             $embed->setColor(getColor('gold')); 
         }
 
-        $embed->setImage($this->getSomeImage());
+        $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif');
         $embed->setDescription($akuma->getDescription());
         $embed->setFooter($akuma->getName());
         
@@ -139,12 +139,7 @@ $EntityManager->getConnection()->close();
         
         return $akuma;
     }
-    public function getSomeImage():string
-    {
-        $images= ['https://media1.tenor.com/m/i02LN_VG-N8AAAAd/bara-bara-no-mi.gif',
-    'https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif'];
-    return $images[array_rand($images)];
-    }
+
     public  function associateUser(string $akuma, string $username)
     {
    $EntityManager = getEntityManager();
