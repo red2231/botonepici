@@ -46,11 +46,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $id = $message->author->id;
     $url = $message->author->avatar;
     $limpador++;
-    if($limpador ==500){
-        $container->get('entity')->flush();
-        $container->get('entity')->clear();
-        $limpador=0;
-    }
+ 
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
@@ -61,7 +57,12 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
-
+    if($limpador ==500){
+        $EntityManager = $container->get('entity');
+        $EntityManager->flush();
+        $EntityManager->clear();
+        $limpador=0;
+    }
     
     if(strcasecmp($conteudo, "+me")===0){
         $akuma = (new AkumaManager)->GetAkumaByUserId($id);
