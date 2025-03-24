@@ -39,13 +39,12 @@ $discord = new Bot([
 $discord->on('init', function (Bot $discord) {
     echo 'Bot iniciou' . PHP_EOL;
 });
-$container = include_once __DIR__.'/utils.php';
 static $processedMessages = [];
-static $limpador = 0;
-$discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages, &$limpador, &$container) {
+
+$discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
     $id = $message->author->id;
     $url = $message->author->avatar;
-    $limpador++;
+ 
  
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
@@ -57,12 +56,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
-    if($limpador ==500){
-        $EntityManager = $container->get('entity');
-        $EntityManager->flush();
-        $EntityManager->clear();
-        $limpador=0;
-    }
+
     
     if(strcasecmp($conteudo, "+me")===0){
         $akuma = (new AkumaManager)->GetAkumaByUserId($id);
