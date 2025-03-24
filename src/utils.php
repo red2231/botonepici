@@ -1,14 +1,12 @@
 <?php
 namespace Discord\Proibida;
 
+use DI\Container;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 
 
-
-
-function getEntityManager(): EntityManager{
     $connec = DriverManager::getConnection([
         'driver'   => 'pdo_mysql',
         'host'     => $_ENV['MYSQL_HOST']??'localhost',
@@ -22,6 +20,8 @@ function getEntityManager(): EntityManager{
         paths: [__DIR__ . '/Entities'],
         isDevMode: true,
     );
-    return     new EntityManager($connec, $config)    ;
-}
-
+    
+$EntityManager = new EntityManager($connec, $config);
+$container = new Container;
+$container->set('entity', $EntityManager);
+return $container;

@@ -10,7 +10,8 @@
         "doctrine/orm": "^3.3",
         "doctrine/annotations": "^2.0",
         "doctrine/dbal": "^4.2",
-        "symfony/cache": "*"
+        "symfony/cache": "*",
+        "php-di/php-di": "^7.0"
     },
     "autoload": {
         "psr-4": {

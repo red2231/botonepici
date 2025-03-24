@@ -1,19 +1,17 @@
 <?php
 
 namespace Discord\Proibida;
-require_once __DIR__.'/utils.php';
 require_once __DIR__.'/teste.php';
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\Usuario;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\ResultSetMapping;
 
 
 use function Discord\getColor;
-use function Discord\Proibida\getEntityManager;
 
+$container = require_once __DIR__.'/utils.php';
 
 class AkumaManager
 {
@@ -80,7 +78,7 @@ class AkumaManager
         return $embed;
     }
     public function cadastrar(string $userId, string $avatarUrl){
-        $EntityManager=getEntityManager();
+        $EntityManager=$GLOBALS['container']->get('entity');
 
 if(is_null($EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$userId]))){
     
@@ -94,7 +92,7 @@ $EntityManager->getConnection()->close();
 }
    private function getByRaridade(string $raridade):Akuma
     {
-        $entityManager = getEntityManager();
+        $entityManager = $GLOBALS['container']->get('entity');
         $akuma = null;
         $rsm = new ResultSetMapping();
 
@@ -142,7 +140,7 @@ $EntityManager->getConnection()->close();
 
     public  function associateUser(string $akuma, string $username)
     {
-   $EntityManager = getEntityManager();
+   $EntityManager = $GLOBALS['container']->get('entity');
    
         $akumaRepo = $EntityManager->getRepository(Akuma::class);
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);;
@@ -155,7 +153,7 @@ $EntityManager->getConnection()->close();
     }
     public function getAkumaUserOrNull(string $name): Usuario|null|false
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
         $repo = $EntityManager->getRepository(Akuma::class);
         $reference = $repo->findOneBy(['name' => $name]);
         if(!$reference){
@@ -178,7 +176,7 @@ $EntityManager->getConnection()->close();
     }
 
     public function removeMemberAndGetAkumaName(string $username): false|string
-    {        $EntityManager = getEntityManager();
+    {        $EntityManager = $GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
        
@@ -209,7 +207,7 @@ $EntityManager->getConnection()->close();
 
     public function getAkumaByUserId(string $userId): ?Akuma
     {
-        $EntityManager = getEntityManager();
+        $EntityManager =$GLOBALS['container']->get('entity');
 
         $user= $EntityManager->createQueryBuilder()
             ->select('a')
@@ -226,7 +224,7 @@ $EntityManager->getConnection()->close();
     }
     public function hasRoll(string $username):bool
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         if(!$user || $user->getRolls()<=0){
@@ -241,7 +239,7 @@ return false;
         return true;
     }
     function setAmount(string $username, int $quantidade):int {
-        $EntityManager = getEntityManager();
+        $EntityManager =$GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         $user->setRolls($quantidade);
@@ -254,7 +252,7 @@ return false;
 
     public function hasAkuma(string $username): bool
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         $EntityManager->getConnection()->close();
@@ -267,7 +265,7 @@ return false;
 
     public function getRollsByUsername(string $username):int
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
 
         $builder = $EntityManager->createQueryBuilder();
         $quantidade = $builder
@@ -282,7 +280,7 @@ return false;
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): bool
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
 
         $EntityManager->beginTransaction(); 
     
@@ -321,7 +319,7 @@ return false;
 
     public function setAkumaFromAdmin(string $targetId, string $akuma)
     {
-        $EntityManager = getEntityManager();
+        $EntityManager = $GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
         
