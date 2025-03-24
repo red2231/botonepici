@@ -46,7 +46,8 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $id = $message->author->id;
     $url = $message->author->avatar;
     $limpador++;
-    if($limpador ==100){
+    if($limpador ==500){
+        $container->get('entity')->flush();
         $container->get('entity')->clear();
         $limpador=0;
     }
