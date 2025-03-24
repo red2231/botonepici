@@ -39,13 +39,17 @@ $discord = new Bot([
 $discord->on('init', function (Bot $discord) {
     echo 'Bot iniciou' . PHP_EOL;
 });
-
+$container = require_once __DIR__.'utils.php';
 static $processedMessages = [];
-
-$discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
+static $limpador = 0;
+$discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages, &$limpador, &$container) {
     $id = $message->author->id;
     $url = $message->author->avatar;
-
+    $limpador++;
+    if($limpador ==100){
+        $container->get('entity')->clear();
+        $limpador=0;
+    }
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }

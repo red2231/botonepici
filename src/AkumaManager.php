@@ -138,13 +138,15 @@ $EntityManager->flush();
     public  function associateUser(string $akuma, string $username)
     {
    $EntityManager = $GLOBALS['container']->get('entity');
-   
-        $akumaRepo = $EntityManager->getRepository(Akuma::class);
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);;
-        $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
-        $user->setAkuma($akum);
-        
-        $EntityManager->flush();
+        $EntityManager->wrapInTransaction(function($EntityManager) use($akuma, $username) {
+            $akumaRepo = $EntityManager->getRepository(Akuma::class);
+            $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);;
+            $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
+            $user->setAkuma($akum);
+            
+            $EntityManager->flush();
+        });
+ 
 
     }
     public function getAkumaUserOrNull(string $name): Usuario|null|false
@@ -179,22 +181,16 @@ $EntityManager->flush();
         if (!$user) {
             return false;
         }
-    
         $akuma = $user->getAkuma();
+
         $akumaName = $akuma ? $akuma->getName() : null;
+
     
-        try {
-            $EntityManager->beginTransaction();
-            $EntityManager->remove($user);
-            $EntityManager->flush();
-            $EntityManager->commit();
-
-        } catch (\Exception $e) {
-            $EntityManager->rollback();
-       
-
-            throw $e; 
-        }
+$EntityManager->wrapInTransaction(function($EntityManager) use ($user){
+    $EntityManager->remove($user);
+    $EntityManager->flush();
+});
+    
     
         return $akumaName ?? false;
     }
@@ -223,19 +219,23 @@ $EntityManager->flush();
         if(!$user || $user->getRolls()<=0){
 return false;
         }
+        $EntityManager->wrapInTransaction(function($EntityManager) use ($user){
+            $user->setRolls(-1);
+            $EntityManager->flush();
+    
+        });
         
-        $user->setRolls(-1);
-        $EntityManager->persist($user);
-        $EntityManager->flush();
-
         return true;
     }
     function setAmount(string $username, int $quantidade):int {
         $EntityManager =$GLOBALS['container']->get('entity');
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        $user->setRolls($quantidade);
-        $EntityManager->flush();
+        $EntityManager->wrapInTransaction(function ($EntityManager) use ($user, $quantidade){
+            $user->setRolls($quantidade);
+            $EntityManager->flush();
+        });
+    
         $restantes = $user->getRolls();
 
         return $restantes;
