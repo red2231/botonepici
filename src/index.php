@@ -202,7 +202,6 @@ $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
 $id = $interaction->data->custom_id;
 $userId = $interaction->user->id;
-$imagem= $interaction->user->avatar;
 $targetId = explode('_', $id)[1];
 if( $userId!== $targetId){
 $interaction->respondWithMessage("Ei! Essa mensagem não deveria ser respondida por você, engraçadinho", true);
@@ -213,7 +212,7 @@ $buttonId= explode('_', $id)[0];
     if($buttonId==='one'){
         $akuma  = $interaction->message->embeds[0]->footer->text;
         $interaction->message->delete();
-       $akumaManager->associateUser($akuma, $userId, $imagem);
+       $akumaManager->associateUser($akuma, $userId);
 $interaction->respondWithMessage("A akuma $akuma agora percente a <@{$userId}>! ", false);
 }
 else{
