@@ -5,7 +5,7 @@ namespace Discord\Proibida;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/redis.php';
 require_once __DIR__ . '/functions.php';
-require_once __DIR__.'/utils.php';
+
 require_once __DIR__.'/teste.php';
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
@@ -39,7 +39,7 @@ $discord = new Bot([
 $discord->on('init', function (Bot $discord) {
     echo 'Bot iniciou' . PHP_EOL;
 });
-$container = require_once __DIR__.'/utils.php';
+$container = require __DIR__.'/utils.php';
 static $processedMessages = [];
 static $limpador = 0;
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages, &$limpador, &$container) {
