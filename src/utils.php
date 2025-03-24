@@ -25,4 +25,5 @@ $EntityManager = new EntityManager($connec, $config);
 
 $container = new Container;
 $container->set('entity', $EntityManager);
+
 return $container;
