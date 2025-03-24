@@ -11,7 +11,7 @@ use Doctrine\ORM\Query\ResultSetMapping;
 
 use function Discord\getColor;
 
-$container = require __DIR__.'/utils.php';
+$container = require_once __DIR__.'/utils.php';
 
 class AkumaManager
 {
