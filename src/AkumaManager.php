@@ -263,10 +263,10 @@ return false;
 
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         $EntityManager->getConnection()->close();
-        if(!$user){
+        if(!$user || !$user->getAkuma()){
 return false;
         }
-        return $user->getAkuma()==null;
+        return true;
     
     }
 
