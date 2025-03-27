@@ -4,7 +4,6 @@ namespace Discord\Proibida;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/redis.php';
-require_once __DIR__ . '/functions.php';
 
 require_once __DIR__.'/teste.php';
 use function Discord\getColor;
@@ -45,21 +44,21 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $id = $message->author->id;
     $url = $message->author->avatar;
  
- 
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
-    (new AkumaManager)->cadastrar($id, $url);
     if (count($processedMessages) >= 200) {
         array_shift($processedMessages);
     }
+    (new AkumaManager($discord->getLoop()))->cadastrar($id, $url);
+
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
 
     
     if(strcasecmp($conteudo, "+me")===0){
-        $akuma = (new AkumaManager)->GetAkumaByUserId($id);
+        $akuma = (new AkumaManager($discord->getLoop()))->GetAkumaByUserId($id);
         $author = $message->author;
         if($akuma){
             $Embed = (new Embed($discord))
@@ -75,7 +74,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     if(str_starts_with($conteudo, '+set-akuma <@') && $message->member->getPermissions()->administrator){
         $targetId = extractId($conteudo);
         $akuma = extractAkuma($conteudo);
-        $setado = (new AkumaManager)->setAkumaFromAdmin($targetId, $akuma);
+        $setado = (new AkumaManager($discord->getLoop()))->setAkumaFromAdmin($targetId, $akuma);
 
         if($setado ===true){
 $message->reply("O usuário(a) <@{$targetId}> teve a akuma $akuma definida");
@@ -91,7 +90,7 @@ if(str_starts_with($conteudo, '+rollt <@')){
 $partes = explode(' ', $conteudo);
 $targetid = extractId($conteudo);
 $quantidade = extractAmount($conteudo);
-$transferiu = (new AkumaManager)->transferRolls($id, $targetid, $quantidade);
+$transferiu = (new AkumaManager($discord->getLoop()))->transferRolls($id, $targetid, $quantidade);
 if($transferiu ===true){
 $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
 }else{
@@ -100,10 +99,10 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
 }
 
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
-        $hasrool = (new AkumaManager)->hasRoll($id);
+        $hasrool = (new AkumaManager($discord->getLoop()))->hasRoll($id);
 
         if($hasrool ===true){
-            $embed = (new AkumaManager)->getSomeAkuma($discord);
+            $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
             $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
             $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
             $actionRow = ActionRow::new()
@@ -121,7 +120,7 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
 
         $value = check($id);
         if ($value === true) {
-            $embed = (new AkumaManager)->getSomeAkuma($discord);
+            $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
             $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
             $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
             $actionRow = ActionRow::new()
@@ -157,7 +156,7 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
             return;
         }
         $akumaName = implode(" ", array_slice($partes, 1));
-        $user = (new AkumaManager)->getAkumaUserOrNull($akumaName);
+        $user = (new AkumaManager($discord->getLoop()))->getAkumaUserOrNull($akumaName);
         $Embed = new Embed($discord);
     
         if ($user instanceof Usuario) {
@@ -170,15 +169,7 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
         }
     
 }
-    if (strcasecmp(trim($conteudo), "!spawn") === 0) {
-        $value = getRaridaded($id);
-        if ($value === true) {
-            $raridade = getAnimalRaridade();
-            $message->channel->sendMessage("<@{$id}> achou uma criatura de tipo $raridade");
-        } else {
-            $message->channel->sendMessage("<@{$id}> você só pode enviar essa mensagem uma vez a cada meia hora! Tente novamente em $value");
-        }
-    }
+
     if ((str_starts_with($conteudo, "+add-roll <@" ) || str_starts_with( $conteudo, "+add-roll <@!")) && $message->member->getPermissions()->administrator)
     {
 $partes = explode(' ', $conteudo);
@@ -188,17 +179,17 @@ if(!is_numeric($quantidade) || !$id || $quantidade<=0){
 $message->reply("Quantidade ou mensagem inválida!");
 }
 else{
-$restantes = (new AkumaManager)->setAmount($id, $quantidade);
+$restantes = (new AkumaManager($discord->getLoop()))->setAmount($id, $quantidade);
 $message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id}> e agora este usuário possui $restantes rolls restantes!");
 }
 }
 if(strcasecmp($conteudo, '+myrolls') ===0){
-$quantidade = (new AkumaManager)->getRollsByUsername($id);
+$quantidade = (new AkumaManager($discord->getLoop()))->getRollsByUsername($id);
 $message->reply("Você possui $quantidade rolls restantes");
 }
 });
-$discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction){
-    $akumaManager = new AkumaManager;
+$discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction, Bot $discord) {
+    $akumaManager = (new AkumaManager($discord->getLoop()));
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
 $id = $interaction->data->custom_id;
 $userId = $interaction->user->id;
@@ -223,7 +214,7 @@ else{
 });
 $discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
 $userId = $member->user->id;
-$bool = (new AkumaManager)->removeMemberAndGetAkumaName($userId);
+$bool = (new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userId);
 if($bool===false){
 
 return;
@@ -236,7 +227,7 @@ return;
 $discord->on(Event::GUILD_BAN_ADD, function(Ban $ban, Bot $discord){
 $userID = $ban->user->id;
 
-$bool = (new AkumaManager)->removeMemberAndGetAkumaName($userID);
+$bool = (new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userID);
 if($bool===false){
 
 return;

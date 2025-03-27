@@ -5,47 +5,26 @@ namespace Discord\Proibida\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'akuma')]
+
 class Akuma
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 191)]
     private string $name;
 
-    #[ORM\Column(type: 'string', enumType: Raridade::class)]
     private Raridade $raridade;
 
-    #[ORM\Column(type: 'string', enumType: Tipo::class)]
     private Tipo $tipo;
 
-    #[ORM\Column(type: 'text')]
     private string $description;
 
-    #[ORM\OneToOne(targetEntity: Usuario::class, inversedBy: 'akuma')]
-    #[ORM\JoinColumn(name: 'usuario_id', referencedColumnName: 'id', unique: true, onDelete:"SET NULL", nullable:true)]
-    private ?Usuario $user = null;
+
+    private ?int $user = null;
 
 
-    public function __construct(?Usuario $user = null)
-    {
-        if ($user !== null) {
-            $this->user = $user;
-            $user->setAkuma($this);
-        }
-    }
-public function getUser():Usuario
-{
-    return $this->user;
-}
-public function setUser(Usuario $user)
-{
-    $this->user=$user;
-}
+ 
+
 
     /**
      * Get the value of description

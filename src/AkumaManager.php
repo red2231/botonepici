@@ -2,22 +2,32 @@
 
 namespace Discord\Proibida;
 require_once __DIR__.'/teste.php';
+
+use Aura\SqlQuery\Common\QuoterInterface;
+use Aura\SqlQuery\Mysql\Quoter;
+use Aura\SqlQuery\Mysql\Select;
+use Aura\SqlQuery\QueryFactory;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\Usuario;
-use Doctrine\ORM\Query\ResultSetMapping;
-
+use Laminas\Hydrator\ClassMethodsHydrator;
+use React\EventLoop\LoopInterface;
+use React\Mysql\MysqlResult;
+use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 use function Discord\getColor;
-
-$container = require_once __DIR__.'/utils.php';
+use function React\Promise\resolve;
 
 class AkumaManager
 {
     private $previousAkuma = null;
-
-
+    private LoopInterface $loop;
+public function __construct(LoopInterface $loop)
+{
+    $this->loop=$loop;
+}
    
     public  function getSomeAkuma(Discord $discord)
     {
@@ -78,44 +88,28 @@ class AkumaManager
         return $embed;
     }
     public function cadastrar(string $userId, string $avatarUrl){
-        $EntityManager=$GLOBALS['container']->get('entity');
+        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente->query('INSERT IGNORE INTO usuario(username,avatarUrl,rolls ) values (?, ?, ?)', [$userId, $avatarUrl, 1])
+        ->catch(function(\Throwable $ex){
+$ex->getMessage();
+return null;
+        });
 
-if(is_null($EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$userId]))){
-    
-$user = new Usuario($userId);
-$user->setAvatarUrl($avatarUrl);
-$EntityManager->persist($user);
-$EntityManager->flush();
-}
 }
    private function getByRaridade(string $raridade):Akuma
     {
-        $entityManager = $GLOBALS['container']->get('entity');
-        $akuma = null;
-        $rsm = new ResultSetMapping();
-
-        $rsm->addEntityResult(Akuma::class, 'u');
+        $cliente = MysqlSingleton::getInstance($this->loop);
         
-        $rsm->addFieldResult('u', 'id', 'id');
-        $rsm->addFieldResult('u', 'name', 'name');
-        
-        $rsm->addFieldResult('u', 'raridade', 'raridade');
-        $rsm->addFieldResult('u', 'tipo', 'tipo');
-        $rsm->addFieldResult('u', 'description', 'description');  
+        $hydrator = new ClassMethodsHydrator;
+        $akuma = new Akuma;
               if ($this->previousAkuma !== null) {
             $sql = "
-                SELECT *
-                FROM akuma
-                WHERE raridade = :raridade
-                  AND usuario_id IS NULL
-                  AND id != :id
-                ORDER BY RAND()
-                LIMIT 1";
-            $query = $entityManager->createNativeQuery($sql,$rsm);
-            $query->setParameter('raridade', $raridade);
-            $query->setParameter('id', $this->previousAkuma);
-            
-            $akuma = $query->getOneOrNullResult();
+                SELECT * FROM akuma WHERE raridade = ? AND usuario_id IS NULL AND id != ? ORDER BY RAND() LIMIT 1";
+                $cliente->query($sql, [$raridade, $this->previousAkuma])->then(function(MysqlResult $result) use ( $hydrator, &$akuma){
+                    $results = $result->resultRows[0];
+                   
+                    $hydrator->hydrate($results, $akuma);
+                });
         } else {
             $sql = "
                 SELECT *
@@ -124,89 +118,104 @@ $EntityManager->flush();
                 AND usuario_id IS NULL
                 ORDER BY RAND()
                 LIMIT 1";
-            $query = $entityManager->createNativeQuery($sql,$rsm);
-            $query->setParameter('raridade', $raridade);
-            $akuma = $query->getOneOrNullResult();
+           $cliente->query($sql, [$raridade])->then(function(MysqlResult $result) use ($hydrator, &$akuma){
+            $results = $result->resultRows[0];
+        
+            $hydrator->hydrate($results, $akuma);
+           });
         }
         
         
             $this->previousAkuma = $akuma->getId();
-        
+      
         return $akuma;
     }
 
     public  function associateUser(string $akuma, string $username)
     {
-   $EntityManager = $GLOBALS['container']->get('entity');
-        $EntityManager->wrapInTransaction(function($EntityManager) use($akuma, $username) {
-            $akumaRepo = $EntityManager->getRepository(Akuma::class);
-            $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);;
-            $akum = $akumaRepo->findOneBy(['name' =>$akuma]);
-            $user->setAkuma($akum);
-            
-            $EntityManager->flush();
+        
+        $cliente = MysqlSingleton::getInstance($this->loop);
+        $sql = 'UPDATE usuario 
+        SET akuma_id = (SELECT id FROM akuma WHERE name = ? LIMIT 1)
+        WHERE username = ?';
+        $cliente->query($sql, [$akuma, $username])->then(function(MysqlResult $result){
+            $rows = $result->affectedRows;
+            echo "Linhas afetadas: $rows";
         });
  
 
     }
-    public function getAkumaUserOrNull(string $name): Usuario|null|false
+    public function getAkumaUserOrNull(string $name):PromiseInterface
     {
-        $EntityManager = $GLOBALS['container']->get('entity');
-        $repo = $EntityManager->getRepository(Akuma::class);
-        $reference = $repo->findOneBy(['name' => $name]);
-        if(!$reference){
-            return false;
-        }
+
+        $user = new Usuario;
+       $one = 'SELECT count(*) as count FROM akuma WHERE name = ?';
+       $cliente = MysqlSingleton::getInstance($this->loop);
+      return  $cliente->query($one, [$name])->then(function(MysqlResult $result){
+            if($result[0]['count']===0){
+                return false;
+            }
+        });
+
+            $second= 'SELECT u.* FROM usuario u JOIN akuma a ON u.akuma_id = a.id WHERE a.name = ? LIMIT 1';
+$cliente->query($second, [$name])
+->then(function(MysqlResult $result) use($user){
+
+$hydrator =new ClassMethodsHydrator;
+$hydrator->hydrate($result->resultRows, $user);
+return resolve($user);
+});
 
 
-        $usuario= $EntityManager->createQueryBuilder()
-            ->select('u')
-            ->from('Discord\Proibida\Entities\Usuario', 'u')
-            ->join('u.akuma', 'a')
-            ->where('a.name = :name')
-            ->setParameter('name', $name)
-            ->getQuery()->getOneOrNullResult();
-  
-  return $usuario;
+    }
+
+    public function removeMemberAndGetAkumaName(string $username): PromiseInterface
+    {      
+          $cliente =MysqlSingleton::getInstance($this->loop);
+        $exists = 'SELECT COUNT(*) as count from usuario where username =?';
+
+
+ 
+return $cliente->query($exists, [$username])->then(function(MysqlResult $result) use($username, $cliente) {
+    if($result[0]['count']===0){
+    return resolve(false);
+    }
+
+
+ 
+
+    $getName = 'SELECT a.name as nome from Akuma INNER JOIN usuario ON a.usuario_id = usuario.id where usuario.username =? LIMIT 1';
+    $cliente->query($getName, [$username])
+    ->then(function(MysqlResult $result) use ($username, $cliente){
+        $rows = $result->resultRows;
+       $nome = $rows[0]['nome'];
+    $select= 'DELETE FROM usuario where username = ? ';
+    $cliente->query($select, [$username]);
+    return resolve($nome);
+    });
+});
+
+
+    
+       
+    }
+
+
 
         
-    }
-
-    public function removeMemberAndGetAkumaName(string $username): false|string
-    {        $EntityManager = $GLOBALS['container']->get('entity');
-
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-       
-
-        if (!$user) {
-            return false;
-        }
-        $akuma = $user->getAkuma();
-
-        $akumaName = $akuma ? $akuma->getName() : null;
-
-    
-$EntityManager->wrapInTransaction(function($EntityManager) use ($user){
-    $EntityManager->remove($user);
-    $EntityManager->flush();
-});
-    
-    
-        return $akumaName ?? false;
-    }
-
     public function getAkumaByUserId(string $userId): ?Akuma
     {
-        $EntityManager =$GLOBALS['container']->get('entity');
+        $cliente = MysqlSingleton::getInstance($this->loop);
+        $query = new QueryFactory('mysql');
+        $select= $query->newSelect();
+     $statement=   $select->cols(['a.*'])
+        ->from('Akuma a')
+        ->join('inner', 'usuario as u', 'a.usuario_id=u.id' )
+        ->where('u.username = :username')
+        ->bindValue('username', 'erick')->getStatement();
 
-        $user= $EntityManager->createQueryBuilder()
-            ->select('a')
-            ->from('Discord\Proibida\Entities\Akuma', 'a')
-            ->join('a.user', 'u')
-            ->where('u.username = :username')
-            ->setParameter('username', $userId)
-            ->getQuery()
-            ->getOneOrNullResult();
+        
+      
 
             return $user;
 
@@ -244,7 +253,7 @@ return false;
     public function hasAkuma(string $username): bool
     {
         $EntityManager = $GLOBALS['container']->get('entity');
-
+        
         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
         if(!$user || !$user->getAkuma()){
 return false;

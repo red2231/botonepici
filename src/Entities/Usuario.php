@@ -2,41 +2,23 @@
 
 namespace Discord\Proibida\Entities;
 
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'usuario', indexes: [new ORM\Index(name: "idx_username", columns: ['username'])])]
 class Usuario
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+
     private int $id;
     
-    #[ORM\Column(type: 'string', unique: true, length: 100)]
     private string $username;
-    #[ORM\Column(type:'string', length: 500)]
     private string $avatarUrl;
-    #[ORM\OneToOne(targetEntity: Akuma::class, mappedBy: 'user', cascade: ['persist', 'refresh', 'detach'])]
-    private ?Akuma $akuma = null;
-    #[ORM\Column(type:'integer')]
-    private int $rolls =0;
-    public function __construct(string $username)
+    private int $rolls;
+    public function __construct(?string $username =null)
     {
-        $this->username = $username;
+        if($username){
+            $this->username = $username;
+        }
+      
     }
 
-    public function setAkuma(Akuma $akuma): void
-    {
-        if ($this->akuma !== $akuma) {
-            $this->akuma = $akuma;
-            $akuma->setUser($this);
-            }
-    }
-   public function getAkuma():?Akuma
-   {
-    return $this->akuma;
-   }
 
     /**
      * Get the value of username
@@ -87,5 +69,26 @@ class Usuario
     public  function getRolls():int
     {
         return $this->rolls;
+    }
+
+    /**
+     * Get the value of id
+     *
+     * @return int
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    /**
+     * Set the value of id
+     *
+     * @param int $id
+     *
+     * @return self
+     */
+    public function setId(int $id): self {
+        $this->id = $id;
+        return $this;
     }
 }

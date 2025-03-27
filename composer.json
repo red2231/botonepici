@@ -7,11 +7,9 @@
         "predis/predis": "^2.3",
         "nesbot/carbon": "^3.8",
         "stichoza/google-translate-php": "^5.2",
-        "doctrine/orm": "^3.3",
-        "doctrine/annotations": "^2.0",
-        "doctrine/dbal": "^4.2",
-        "symfony/cache": "*",
-        "php-di/php-di": "^7.0"
+        "react/mysql": "^0.7@dev",
+        "laminas/laminas-hydrator": "^4.16",
+        "aura/sqlquery": "^3.0"
     },
     "autoload": {
         "psr-4": {
