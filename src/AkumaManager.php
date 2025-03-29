@@ -228,7 +228,7 @@ return $Akuma;
 
 
     }
-    public function hasRoll(string $username):bool
+    public function hasRoll(string $username):PromiseInterface
     {
 
         $cliente = MysqlSingleton::getInstance($this->loop);
@@ -237,7 +237,7 @@ return $Akuma;
         ->from('usuario')
         ->where('username =?')
         ->limit(1)->getStatement();
-        $cliente->query($sql, [$username])
+    return    $cliente->query($sql, [$username])
         ->then(function(MysqlResult $result) use($cliente, $username){
             $roll =(int) $result->resultRows[0]['roll'];
             if($roll<=0){
@@ -286,66 +286,70 @@ return resolve(false);
     
     }
 
-    public function getRollsByUsername(string $username):int
+    public function getRollsByUsername(string $username):PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
 
         $builder = $this->factory->newSelect()->cols(['rolls' => 'roll'])
         ->from('usuario')
-        ->where('username=?')->getStatement();
+        ->where('username=?')->limit(1)->getStatement();
+        return $cliente->query($builder, [$username])
+        ->then(function(MysqlResult $result){
+            return $result[0]['roll'];
+        });
     }
-    public function transferRolls(string $sourceId, string $targetId, int $amount): bool
-    {
-        $EntityManager = $GLOBALS['container']->get('entity');
+    public function transferRolls(string $sourceId, string $targetId, int $amount){
+//     {
+//         $EntityManager = $GLOBALS['container']->get('entity');
 
-        $EntityManager->beginTransaction(); 
+//         $EntityManager->beginTransaction(); 
     
-        try {
-            $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$sourceId]);
+//         try {
+//             $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$sourceId]);
             
-            $user->setRolls( -$amount);
+//             $user->setRolls( -$amount);
             
-            if ($user->getRolls() < 0) {
-                $EntityManager->rollback(); 
-                return false;
-            }
+//             if ($user->getRolls() < 0) {
+//                 $EntityManager->rollback(); 
+//                 return false;
+//             }
             
     
-            $targetUser = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
+//             $targetUser = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
             
-            if(!$targetUser){
-                $EntityManager->rollback(); 
+//             if(!$targetUser){
+//                 $EntityManager->rollback(); 
 
-return false;
-            }
-            $targetUser->setRolls($amount);
+// return false;
+//             }
+//             $targetUser->setRolls($amount);
     
-            $EntityManager->flush();
-            $EntityManager->commit(); 
+//             $EntityManager->flush();
+//             $EntityManager->commit(); 
 
-            return true;
-        } catch (\Exception $e) {
-            $EntityManager->rollback(); 
-            throw $e; 
-        }
+//             return true;
+//         } catch (\Exception $e) {
+//             $EntityManager->rollback(); 
+//             throw $e; 
+//         }
     }
    
 
 
     public function setAkumaFromAdmin(string $targetId, string $akuma)
     {
-        $EntityManager = $GLOBALS['container']->get('entity');
+//         $EntityManager = $GLOBALS['container']->get('entity');
 
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
+//         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
         
-        $akuma = $EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $akuma]);
-        if(!$user || !$akuma){
-            return false;
-                    }   
-                    $user->setAkuma($akuma);
-$EntityManager->flush();
-return true;
+//         $akuma = $EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $akuma]);
+//         if(!$user || !$akuma){
+//             return false;
+//                     }   
+//                     $user->setAkuma($akuma);
+// $EntityManager->flush();
+// return true;
 
 
-    }
-    }
+//     }
+    }}

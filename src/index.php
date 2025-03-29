@@ -31,8 +31,7 @@ $token = $_ENV['TOKEN'];
 
 $discord = new Bot([
     'token'   => $token,
-    'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::GUILD_MODERATION, Intents::MESSAGE_CONTENT
-    , Intents::DIRECT_MESSAGES, Intents::GUILDS, Intents::GUILD_PRESENCES]
+    'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT]
 ]);
 
 $discord->on('init', function (Bot $discord) {
@@ -50,31 +49,33 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     if (count($processedMessages) >= 200) {
         array_shift($processedMessages);
     }
-    (new AkumaManager($discord->getLoop()))->cadastrar($id, $url);
+
+    $manager =new AkumaManager($discord->getLoop());
+    $manager->cadastrar($id, $url);
 
     $processedMessages[$message->id] = true;
 
     $conteudo = $message->content;
 
     
-    if(strcasecmp($conteudo, "+me")===0){
-        $akuma = (new AkumaManager($discord->getLoop()))->GetAkumaByUserId($id);
-        $author = $message->author;
-        if($akuma){
-            $Embed = (new Embed($discord))
-            ->setTitle("A sua akuma: {$akuma->getName()}")
-            ->setColor(getColor('purple'));
-            $message->reply(MessageBuilder::new()->addEmbed($Embed));
-        }else{
-            $message->reply("Você não tem akuma no mi");
-        }
+    // if(strcasecmp($conteudo, "+me")===0){
+    //     $akuma = $manager->GetAkumaByUserId($id);
+    //     $author = $message->author;
+    //     if($akuma){
+    //         $Embed = (new Embed($discord))
+    //         ->setTitle("A sua akuma: {$akuma->}")
+    //         ->setColor(getColor('purple'));
+    //         $message->reply(MessageBuilder::new()->addEmbed($Embed));
+    //     }else{
+    //         $message->reply("Você não tem akuma no mi");
+    //     }
         
 
-    }
+    
     if(str_starts_with($conteudo, '+set-akuma <@') && $message->member->getPermissions()->administrator){
         $targetId = extractId($conteudo);
         $akuma = extractAkuma($conteudo);
-        $setado = (new AkumaManager($discord->getLoop()))->setAkumaFromAdmin($targetId, $akuma);
+        $setado = $manager->setAkumaFromAdmin($targetId, $akuma);
 
         if($setado ===true){
 $message->reply("O usuário(a) <@{$targetId}> teve a akuma $akuma definida");
@@ -99,51 +100,53 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
 }
 
     if (strcasecmp(trim($conteudo), "!akuma") === 0) {
-        $hasrool = (new AkumaManager($discord->getLoop()))->hasRoll($id);
+        $manager->hasRoll($id)->then(function(bool $bool) use($discord, $id, $message, $manager) {
+            if($bool ===true){
+                $embed = $manager->getSomeAkuma($discord);
+                $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+                $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+                $actionRow = ActionRow::new()
+                    ->addComponent($buttonOne)
+                    ->addComponent($buttonTwo);
+                $builder = MessageBuilder::new()
+                    ->addEmbed($embed);
+                    if($embed->title!=='Você achou um... Nada!?'){
+                        $builder->addComponent($actionRow);
+                    }
+                    
+                $message->reply($builder);
+                return;
+            }
+    
+            $value = check($id);
+            if ($value === true) {
+                $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
+                $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+                $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+                $actionRow = ActionRow::new()
+                    ->addComponent($buttonOne)
+                    ->addComponent($buttonTwo);
+                $builder = MessageBuilder::new()
+                    ->addEmbed($embed);
+                    if($embed->title!=='Você achou um... Nada!?'){
+                        $builder->addComponent($actionRow);
+                    }
+                    
+                $message->reply($builder);
+            } else {
+                $translate = new GoogleTranslate();
+                $translate->setTarget('pt-br');
+    
+                $embed = new Embed($discord);
+                $embed->setTitle("⏳ Limite de uso diário!")
+                      ->setDescription("Tente novamente em: " . $translate->translate($value))
+                      ->setColor(getColor('darkblue'));
+                $builder = MessageBuilder::new()->addEmbed($embed);
+                $message->reply($builder);
+            }
+        });
 
-        if($hasrool ===true){
-            $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
-            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-            $actionRow = ActionRow::new()
-                ->addComponent($buttonOne)
-                ->addComponent($buttonTwo);
-            $builder = MessageBuilder::new()
-                ->addEmbed($embed);
-                if($embed->title!=='Você achou um... Nada!?'){
-                    $builder->addComponent($actionRow);
-                }
-                
-            $message->reply($builder);
-            return;
-        }
-
-        $value = check($id);
-        if ($value === true) {
-            $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
-            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-            $actionRow = ActionRow::new()
-                ->addComponent($buttonOne)
-                ->addComponent($buttonTwo);
-            $builder = MessageBuilder::new()
-                ->addEmbed($embed);
-                if($embed->title!=='Você achou um... Nada!?'){
-                    $builder->addComponent($actionRow);
-                }
-                
-            $message->reply($builder);
-        } else {
-            $translate = new GoogleTranslate();
-            $translate->setTarget('pt-br');
-
-            $embed = new Embed($discord);
-            $embed->setTitle("⏳ Limite de uso diário!")
-                  ->setDescription("Tente novamente em: " . $translate->translate($value))
-                  ->setColor(getColor('darkblue'));
-            $builder = MessageBuilder::new()->addEmbed($embed);
-            $message->reply($builder);
-        }
+      
     }
     
 
@@ -156,7 +159,7 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
             return;
         }
         $akumaName = implode(" ", array_slice($partes, 1));
-        $user = (new AkumaManager($discord->getLoop()))->getAkumaUserOrNull($akumaName);
+        $user = $manager->getAkumaUserOrNull($akumaName);
         $Embed = new Embed($discord);
     
         if ($user instanceof Usuario) {
