@@ -1,9 +1,6 @@
 <?php
 namespace Discord\Proibida;
-require_once __DIR__ . '/../vendor/autoload.php';
 
-use Discord\Parts\Interactions\Command\Permission as CommandPermission;
-use Discord\Parts\Permissions\Permission;
 
 function random(): float {
     $bias = mt_rand() / mt_getrandmax();
@@ -16,7 +13,6 @@ function extractId(string $raw) : string|false {
     }
     return false;
 }
-// var_dump( Permission::ROLE_PERMISSIONS['administrator']);
 
 function extractAmount(string $raw){
     $partes = explode(' ', $raw);
@@ -28,6 +24,4 @@ function extractAkuma(string $raw) : string {
     $akuma = implode(' ', array_slice($partes, 2));
     return $akuma;
 }
-
-echo extractAkuma("+set-akuma <@32432432432> Goro Goro no Mi");
 

@@ -98,56 +98,62 @@ $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
     $message->reply("Erro na transação! Talvez você não tenha rolls suficientes ou o usuário destino não exista!");
 }
 }
-
-    if (strcasecmp(trim($conteudo), "!akuma") === 0) {
-        $manager->hasRoll($id)->then(function(bool $bool) use($discord, $id, $message, $manager) {
-            if($bool ===true){
-                $embed = $manager->getSomeAkuma($discord);
+if (strcasecmp(trim($conteudo), "!akuma") === 0) {
+    $manager->hasRoll($id)->then(function (bool $bool) use ($discord, $id, $message, $manager) {
+        if ($bool === true) {
+            $manager->getSomeAkuma($discord)->then(function (Embed $embed) use ($message, $id, $manager, $discord) {
                 $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
                 $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-                $actionRow = ActionRow::new()
-                    ->addComponent($buttonOne)
-                    ->addComponent($buttonTwo);
-                $builder = MessageBuilder::new()
-                    ->addEmbed($embed);
-                    if($embed->title!=='Você achou um... Nada!?'){
-                        $builder->addComponent($actionRow);
-                    }
-                    
+                $actionRow = ActionRow::new()->addComponent($buttonOne)->addComponent($buttonTwo);
+
+                $builder = MessageBuilder::new()->addEmbed($embed);
+
+                if ($embed->title !== 'Você achou um... Nada!?') {
+                    $builder->addComponent($actionRow);
+                   
+                }
                 $message->reply($builder);
                 return;
-            }
+            
+            });}
+            $manager->getSomeAkuma($discord)->then(function (Embed $embed) use ($message, $id, $manager, $discord) {
+                check($id, $manager)->then(function ($value) use($id, $message, $discord, $manager){
+                    if ($value === true) {
+                        $manager->getSomeAkuma($discord)->then(function (Embed $embed) use ($message, $id) {
+                            $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
+                            $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
+                            $actionRow = ActionRow::new()->addComponent($buttonOne)->addComponent($buttonTwo);
     
-            $value = check($id);
-            if ($value === true) {
-                $embed = (new AkumaManager($discord->getLoop()))->getSomeAkuma($discord);
-                $buttonOne = Button::new(Button::STYLE_SUCCESS, "one_{$id}")->setLabel('Aceitar');
-                $buttonTwo = Button::new(Button::STYLE_DANGER, "second_{$id}")->setLabel('Recusar');
-                $actionRow = ActionRow::new()
-                    ->addComponent($buttonOne)
-                    ->addComponent($buttonTwo);
-                $builder = MessageBuilder::new()
-                    ->addEmbed($embed);
-                    if($embed->title!=='Você achou um... Nada!?'){
-                        $builder->addComponent($actionRow);
+                            $builder = MessageBuilder::new()->addEmbed($embed);
+    
+                            if ($embed->title !== 'Você achou um... Nada!?') {
+                                $builder->addComponent($actionRow);
+                            }
+    
+                            $message->reply($builder);
+                        });
+                    } else {
+                        $translate = new GoogleTranslate();
+                        $translate->setTarget('pt-br');
+    
+                        $embed = new Embed($discord);
+                        $embed->setTitle("⏳ Limite de uso diário!")
+                              ->setDescription("Tente novamente em: " . $translate->translate($value))
+                              ->setColor(getColor('darkblue'));
+    
+                        $builder = MessageBuilder::new()->addEmbed($embed);
+                        $message->reply($builder);
                     }
-                    
-                $message->reply($builder);
-            } else {
-                $translate = new GoogleTranslate();
-                $translate->setTarget('pt-br');
-    
-                $embed = new Embed($discord);
-                $embed->setTitle("⏳ Limite de uso diário!")
-                      ->setDescription("Tente novamente em: " . $translate->translate($value))
-                      ->setColor(getColor('darkblue'));
-                $builder = MessageBuilder::new()->addEmbed($embed);
-                $message->reply($builder);
-            }
-        });
+            });
+                });
 
-      
-    }
+               
+    
+    });
+        }
+
+
+             
     
 
 
@@ -191,6 +197,7 @@ $quantidade = (new AkumaManager($discord->getLoop()))->getRollsByUsername($id);
 $message->reply("Você possui $quantidade rolls restantes");
 }
 });
+
 $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction, Bot $discord) {
     $akumaManager = (new AkumaManager($discord->getLoop()));
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){

@@ -31,63 +31,75 @@ public function __construct(LoopInterface $loop)
     $this->factory=  new QueryFactory('mysql');
 }
    
-    public  function getSomeAkuma(Discord $discord)
-    {
-        $random = random_int(0, 100);
-     
-        if ($random < 50) {
-            $embed = new Embed($discord);
-            $embed->setTitle('Você achou um... Nada!?');
-            $embed->setColor(getColor('red'));
-            $embed->setImage("https://images-ext-1.discordapp.net/external/wEpSctfomfaLtMDp4P026MlymnFVwNtWZ_pINl80L3Q/https/i.pinimg.com/originals/3c/5b/0f/3c5b0fb6c0cc6273e25d164d2dc3f1ca.gif");
-            $embed->setFooter('Mais sorte da próxima vez!');
-            return $embed;
-        } else {
-            return $this->getAkuma($discord);
-        }
-        
+public function getSomeAkuma(Discord $discord): PromiseInterface
+{
+    $random = random_int(0, 100);
+
+    if ($random < 50) {
+        $embed = new Embed($discord);
+        $embed->setTitle('Você achou um... Nada!?');
+        $embed->setColor(getColor('red'));
+        $embed->setImage("https://images-ext-1.discordapp.net/external/wEpSctfomfaLtMDp4P026MlymnFVwNtWZ_pINl80L3Q/https/i.pinimg.com/originals/3c/5b/0f/3c5b0fb6c0cc6273e25d164d2dc3f1ca.gif");
+        $embed->setFooter('Mais sorte da próxima vez!');
+
+        return resolve($embed); 
     }
 
-    private function getAkuma(Discord $discord)
+    return $this->getAkuma($discord);
+}
+
+private function GetRaridade(){
+    $random = random();
+    if ($random < 60) {
+
+        return 'Comum';
+    }elseif($random >= 60 && $random < 85){
+return 'Raro';
+    }
+    elseif($random >= 85 && $random < 95 ){
+        return 'Épico';
+    }
+    elseif($random >= 95 && $random < 99.9){
+return 'Lendário';
+    }else{
+        return 'Mitíco';
+    }
+}
+    private function getAkuma(Discord $discord):PromiseInterface
     {
         
         $embed = new Embed($discord);
-        $random = random();
-        $akuma = null;
+        $Raridade = $this->GetRaridade();
 
-        if ($random < 60) {
+       return $this->getByRaridade($Raridade)
+        ->then(function(Akuma $akuma) use($embed){
+            if($akuma->getRaridade()->value ==='Comum'){
+             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->getRaridade()->value} comum");
+             $embed->setColor(getColor('blue')); 
+            }
+            elseif($akuma->getRaridade()->value==='Raro'){
+          $embed->setTitle("Legal! Você conseguiu uma {$akuma->getRaridade()->value} do tipo raro!");
+                  $embed->setColor(getColor('yellow')); 
+            }  
+            elseif($akuma->getRaridade()->value==='Épico'){
+           $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->getRaridade()->value} épica!");
+           $embed->setColor(getColor('purple')); 
+            }elseif($akuma->getRaridade()->value==='Lendário'){
+                     $embed->setTitle("Você conseguiu uma {$akuma->getRaridade()->value} lendária! Incrível!!");
+             $embed->setColor(getColor('pink')); 
+            }
+            else{
+                       $embed->setTitle("O que!? Você conseguiu uma {$akuma->getRaridade()->value} mítica?! Onde arranjou isso!?");
+             $embed->setColor(getColor('gold')); 
+            }
+            $embed->setFooter($akuma->getName());
+            $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAd/akuma-no-mi.gif');
+return $embed;
+        });
+
+
             
-            $akuma = $this->getByRaridade('Comum');
-            $tipo = $akuma->getTipo()->value;
-            $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma $tipo comum");
-            $embed->setColor(getColor('blue')); 
-        } elseif ($random >= 60 && $random < 85) {
-            $akuma = $this->getByRaridade('Raro');
-            $tipo = $akuma->getTipo()->value;
-            $embed->setTitle("Legal! Você conseguiu uma $tipo do tipo raro!");
-            $embed->setColor(getColor('yellow')); 
-        } elseif ($random >= 85 && $random < 95) {
-            $akuma = $this->getByRaridade('Épico');
-            $tipo = $akuma->getTipo()->value;
-            $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma $tipo épica!");
-            $embed->setColor(getColor('purple')); 
-        } elseif ($random >= 95 && $random < 99.9) {
-            $akuma = $this->getByRaridade('Lendário');
-            $tipo = $akuma->getTipo()->value;
-            $embed->setTitle("Você conseguiu uma $tipo lendária! Incrível!!");
-            $embed->setColor(getColor('pink')); 
-        } else {
-            $akuma = $this->getByRaridade('Mítico');
-            $tipo = $akuma->getTipo()->value;
-            $embed->setTitle("O que!? Você conseguiu uma $tipo mítica?! Onde arranjou isso!?");
-            $embed->setColor(getColor('gold')); 
-        }
-
-        $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAC/akuma-no-mi.gif');
-        $embed->setDescription($akuma->getDescription());
-        $embed->setFooter($akuma->getName());
-        
-        return $embed;
+    
     }
     public function cadastrar(string $userId, string $avatarUrl){
         $cliente = MysqlSingleton::getInstance($this->loop);
@@ -98,42 +110,39 @@ return null;
         });
 
 }
-   private function getByRaridade(string $raridade):Akuma
+   private function getByRaridade(string $raridade):PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
         
         $hydrator = new ClassMethodsHydrator;
         $akuma = new Akuma;
               if ($this->previousAkuma !== null) {
-            $sql = "
-                SELECT * FROM akuma WHERE raridade = ? AND usuario_id IS NULL AND id != ? ORDER BY RAND() LIMIT 1";
-                $cliente->query($sql, [$raridade, $this->previousAkuma])->then(function(MysqlResult $result) use ( $hydrator, &$akuma){
+            $sql = "SELECT * FROM akuma WHERE raridade = ? AND usuario_id IS NULL AND id != ? ORDER BY RAND() LIMIT 1";
+             return   $cliente->query($sql, [$raridade, $this->previousAkuma])->then(function(MysqlResult $result) use ( $hydrator, $akuma){
                     $results = $result->resultRows[0];
                    
                   $akuma=  $hydrator->hydrate($results, $akuma);
+                  $this->previousAkuma = $akuma->getId();
+                  return $akuma;
                 });
         } else {
-            $sql = "
-                SELECT *
-                FROM akuma
-                WHERE raridade = :raridade
-                AND usuario_id IS NULL
-                ORDER BY RAND()
-                LIMIT 1";
-           $cliente->query($sql, [$raridade])->then(function(MysqlResult $result) use ($hydrator, &$akuma){
+            $sql = "SELECT * FROM akuma WHERE raridade = ? AND usuario_id IS NULL ORDER BY RAND() LIMIT 1";
+         return  $cliente->query($sql, [$raridade])->then(function(MysqlResult $result) use ($hydrator, $akuma){
             $results = $result->resultRows[0];
-        
-         $akuma=   $hydrator->hydrate($results, $akuma);
+            $akuma=   $hydrator->hydrate($results, $akuma);
+            $this->previousAkuma = $akuma->getId();
+         
+         return $akuma;
            });
         }
         
         
-            $this->previousAkuma = $akuma->getId();
+        
       
-        return $akuma;
+        
     }
 
-    public  function associateUser(string $akuma, string $username)
+    public  function associateUser(string $akuma, string $username):void
     {
         
         $cliente = MysqlSingleton::getInstance($this->loop);

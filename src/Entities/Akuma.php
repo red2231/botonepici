@@ -3,9 +3,6 @@
 namespace Discord\Proibida\Entities;
 
 
-use Doctrine\ORM\Mapping as ORM;
-
-
 class Akuma
 {
 
@@ -20,9 +17,15 @@ class Akuma
     private string $description;
 
 
-    private ?int $user = null;
-
-
+    private ?int $usuario_id = null;
+public function getUsuario_id():int
+{
+    return $this->usuario_id;
+}
+public function setUsuario_id(int $id)
+{
+    $this->usuario_id=$id;
+}
  
 
 
@@ -63,8 +66,8 @@ class Akuma
      *
      * @return self
      */
-    public function setTipo(Tipo $tipo): self {
-        $this->tipo = $tipo;
+    public function setTipo(string $tip): self {
+        $this->tipo = Tipo::from($tip);
         return $this;
     }
 
@@ -84,8 +87,8 @@ class Akuma
      *
      * @return self
      */
-    public function setRaridade(Raridade $raridade): self {
-        $this->raridade = $raridade;
+    public function setRaridade(string $raridad): self {
+        $this->raridade = Raridade::from($raridad);
         return $this;
     }
 
@@ -117,5 +120,17 @@ class Akuma
      */
     public function getId(): int {
         return $this->id;
+    }
+
+    /**
+     * Set the value of id
+     *
+     * @param int $id
+     *
+     * @return self
+     */
+    public function setId(string $id): self {
+        $this->id = (int)$id;
+        return $this;
     }
     }
