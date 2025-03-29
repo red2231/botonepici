@@ -11,4 +11,4 @@ echo $select->cols(['a.*'])
 ->from('Akuma a')
 ->join('inner', 'usuario as u', 'a.usuario_id=u.id' )
 ->where('u.username = :username')
-->bindValue('username', 'erick')->getStatement();
+->bindValue('username', 'erick')->limit(1) ->getStatement();

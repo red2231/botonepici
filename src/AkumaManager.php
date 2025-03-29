@@ -24,9 +24,11 @@ class AkumaManager
 {
     private $previousAkuma = null;
     private LoopInterface $loop;
+    private QueryFactory $factory;
 public function __construct(LoopInterface $loop)
 {
     $this->loop=$loop;
+    $this->factory=  new QueryFactory('mysql');
 }
    
     public  function getSomeAkuma(Discord $discord)
@@ -108,7 +110,7 @@ return null;
                 $cliente->query($sql, [$raridade, $this->previousAkuma])->then(function(MysqlResult $result) use ( $hydrator, &$akuma){
                     $results = $result->resultRows[0];
                    
-                    $hydrator->hydrate($results, $akuma);
+                  $akuma=  $hydrator->hydrate($results, $akuma);
                 });
         } else {
             $sql = "
@@ -121,7 +123,7 @@ return null;
            $cliente->query($sql, [$raridade])->then(function(MysqlResult $result) use ($hydrator, &$akuma){
             $results = $result->resultRows[0];
         
-            $hydrator->hydrate($results, $akuma);
+         $akuma=   $hydrator->hydrate($results, $akuma);
            });
         }
         
@@ -162,8 +164,8 @@ $cliente->query($second, [$name])
 ->then(function(MysqlResult $result) use($user){
 
 $hydrator =new ClassMethodsHydrator;
-$hydrator->hydrate($result->resultRows, $user);
-return resolve($user);
+$user = $hydrator->hydrate($result->resultRows, $user);
+return $user;
 });
 
 
@@ -203,7 +205,7 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
 
 
         
-    public function getAkumaByUserId(string $userId): ?Akuma
+    public function getAkumaByUserId(string $userId): PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
         $query = new QueryFactory('mysql');
@@ -212,69 +214,85 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
         ->from('Akuma a')
         ->join('inner', 'usuario as u', 'a.usuario_id=u.id' )
         ->where('u.username = :username')
-        ->bindValue('username', 'erick')->getStatement();
-
+        ->bindValue('username', $userId)->limit(1)->getStatement();
+       return $cliente->query($statement)
+        ->then(function(MysqlResult $result){
+            $rows = $result->resultRows[0];
+            $hydrator = new ClassMethodsHydrator;
+            $Akuma = new Akuma;
+         $Akuma=   $hydrator->hydrate($rows, $Akuma);
+return $Akuma;
+        });
         
       
 
-            return $user;
 
     }
     public function hasRoll(string $username):bool
     {
-        $EntityManager = $GLOBALS['container']->get('entity');
 
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        if(!$user || $user->getRolls()<=0){
-return false;
-        }
-        $EntityManager->wrapInTransaction(function($EntityManager) use ($user){
-            $user->setRolls(-1);
-            $EntityManager->flush();
-    
+        $cliente = MysqlSingleton::getInstance($this->loop);
+        $select = $this->factory->newSelect();
+        $sql = $select->cols(['rolls' =>'roll'])
+        ->from('usuario')
+        ->where('username =?')
+        ->limit(1)->getStatement();
+        $cliente->query($sql, [$username])
+        ->then(function(MysqlResult $result) use($cliente, $username){
+            $roll =(int) $result->resultRows[0]['roll'];
+            if($roll<=0){
+return resolve(false);
+            }
+            $roll-=1;
+            $update = $this->factory->newUpdate();
+            $sql = $update
+            ->table('usuario')
+            ->set('rolls', $roll)
+            ->where('username=?');
+            $cliente->query($sql, [$username]);
+            return resolve(true);
         });
         
-        return true;
     }
-    function setAmount(string $username, int $quantidade):int {
-        $EntityManager =$GLOBALS['container']->get('entity');
+    function setAmount(string $username, int $quantidade):PromiseInterface {
+        $cliente = MysqlSingleton::getInstance($this->loop);
 
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        $EntityManager->wrapInTransaction(function ($EntityManager) use ($user, $quantidade){
-            $user->setRolls($quantidade);
-            $EntityManager->flush();
+
+        $sql= 'UPDATE usuario SET rolls = rolls + ? where username = ?';
+        $cliente->query($sql, [$quantidade, $username]);
+        $select = 'SELECT rolls as roll from usuario where username=? limit 1';
+      return  $cliente->query($select, [$username])
+        ->then(function(MysqlResult $result) {
+            return $result->resultRows[0]['roll'];
         });
-    
-        $restantes = $user->getRolls();
-
-        return $restantes;
+        
     }
 
-    public function hasAkuma(string $username): bool
+    public function hasAkuma(string $username):PromiseInterface
     {
-        $EntityManager = $GLOBALS['container']->get('entity');
-        
-        $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$username]);
-        if(!$user || !$user->getAkuma()){
-return false;
-        }
-        return true;
+$cliente = MysqlSingleton::getInstance($this->loop);
+$sql = $this->factory->newSelect()->cols(['u.*'])
+->from('usuario u')
+->join('inner', 'akuma a', 'u.id = a.usuario_id')
+->where('u.username =?')->getStatement();
+return $cliente->query($sql, [$username])
+->then(function (MysqlResult $result){
+if($result===null){
+return resolve(false);
+}else{
+    return resolve(true);
+}
+});
     
     }
 
     public function getRollsByUsername(string $username):int
     {
-        $EntityManager = $GLOBALS['container']->get('entity');
+        $cliente = MysqlSingleton::getInstance($this->loop);
 
-        $builder = $EntityManager->createQueryBuilder();
-        $quantidade = $builder
-        ->select('u.rolls')
-        ->from('Discord\Proibida\Entities\Usuario', 'u')
-        ->where('u.username =:username')
-        ->setParameter('username', $username);
-        
-        $quantidade= $quantidade->getQuery()->getSingleScalarResult();
-        return $quantidade;
+        $builder = $this->factory->newSelect()->cols(['rolls' => 'roll'])
+        ->from('usuario')
+        ->where('username=?')->getStatement();
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): bool
     {
