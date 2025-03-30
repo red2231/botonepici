@@ -1,11 +1,8 @@
 <?php
 
 namespace Discord\Proibida;
-require_once __DIR__.'/teste.php';
+require_once __DIR__.'/redis.php';
 
-use Aura\SqlQuery\Common\QuoterInterface;
-use Aura\SqlQuery\Mysql\Quoter;
-use Aura\SqlQuery\Mysql\Select;
 use Aura\SqlQuery\QueryFactory;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
@@ -14,8 +11,8 @@ use Discord\Proibida\Entities\Usuario;
 use Laminas\Hydrator\ClassMethodsHydrator;
 use React\EventLoop\LoopInterface;
 use React\Mysql\MysqlResult;
-use React\Promise\Promise;
 use React\Promise\PromiseInterface;
+use Throwable;
 
 use function Discord\getColor;
 use function React\Promise\resolve;
@@ -92,15 +89,21 @@ return 'Lendário';
                        $embed->setTitle("O que!? Você conseguiu uma {$akuma->getRaridade()->value} mítica?! Onde arranjou isso!?");
              $embed->setColor(getColor('gold')); 
             }
+            $embed->setDescription($akuma->getDescription());
             $embed->setFooter($akuma->getName());
-            $embed->setImage('https://media1.tenor.com/m/zAwi-9jeOAEAAAAd/akuma-no-mi.gif');
+            $embed->setImage($this->getImage());
 return $embed;
         });
-
-
-            
-    
     }
+private function getImage():string
+{
+    $images = ['https://c.tenor.com/5k-buzEolw8AAAAC/tenor.gif','https://c.tenor.com/zAwi-9jeOAEAAAAC/tenor.gif',
+    'https://c.tenor.com/i02LN_VG-N8AAAAd/tenor.gif'];
+    return $images[array_rand($images)];
+}
+
+
+
     public function cadastrar(string $userId, string $avatarUrl){
         $cliente = MysqlSingleton::getInstance($this->loop);
         $cliente->query('INSERT IGNORE INTO usuario(username,avatarUrl,rolls ) values (?, ?, ?)', [$userId, $avatarUrl, 1])
@@ -135,11 +138,6 @@ return null;
          return $akuma;
            });
         }
-        
-        
-        
-      
-        
     }
 
     public  function associateUser(string $akuma, string $username):void
@@ -171,30 +169,21 @@ return null;
             $second= 'SELECT u.* FROM usuario u JOIN akuma a ON u.akuma_id = a.id WHERE a.name = ? LIMIT 1';
 $cliente->query($second, [$name])
 ->then(function(MysqlResult $result) use($user){
-
 $hydrator =new ClassMethodsHydrator;
 $user = $hydrator->hydrate($result->resultRows, $user);
 return $user;
 });
-
-
     }
 
     public function removeMemberAndGetAkumaName(string $username): PromiseInterface
     {      
           $cliente =MysqlSingleton::getInstance($this->loop);
         $exists = 'SELECT COUNT(*) as count from usuario where username =?';
-
-
  
 return $cliente->query($exists, [$username])->then(function(MysqlResult $result) use($username, $cliente) {
     if($result[0]['count']===0){
-    return resolve(false);
+    return false;
     }
-
-
- 
-
     $getName = 'SELECT a.name as nome from Akuma INNER JOIN usuario ON a.usuario_id = usuario.id where usuario.username =? LIMIT 1';
     $cliente->query($getName, [$username])
     ->then(function(MysqlResult $result) use ($username, $cliente){
@@ -202,18 +191,11 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
        $nome = $rows[0]['nome'];
     $select= 'DELETE FROM usuario where username = ? ';
     $cliente->query($select, [$username]);
-    return resolve($nome);
+    return $nome;
     });
-});
-
-
-    
-       
+});       
     }
 
-
-
-        
     public function getAkumaByUserId(string $userId): PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
@@ -232,10 +214,6 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
          $Akuma=   $hydrator->hydrate($rows, $Akuma);
 return $Akuma;
         });
-        
-      
-
-
     }
     public function hasRoll(string $username):PromiseInterface
     {
@@ -250,7 +228,7 @@ return $Akuma;
         ->then(function(MysqlResult $result) use($cliente, $username){
             $roll =(int) $result->resultRows[0]['roll'];
             if($roll<=0){
-return resolve(false);
+return false;
             }
             $roll-=1;
             $update = $this->factory->newUpdate();
@@ -259,20 +237,17 @@ return resolve(false);
             ->set('rolls', $roll)
             ->where('username=?');
             $cliente->query($sql, [$username]);
-            return resolve(true);
+            return true;
         });
-        
     }
     function setAmount(string $username, int $quantidade):PromiseInterface {
         $cliente = MysqlSingleton::getInstance($this->loop);
-
-
         $sql= 'UPDATE usuario SET rolls = rolls + ? where username = ?';
         $cliente->query($sql, [$quantidade, $username]);
         $select = 'SELECT rolls as roll from usuario where username=? limit 1';
       return  $cliente->query($select, [$username])
         ->then(function(MysqlResult $result) {
-            return $result->resultRows[0]['roll'];
+            return(int) $result->resultRows[0]['roll'];
         });
         
     }
@@ -307,58 +282,35 @@ return resolve(false);
             return $result[0]['roll'];
         });
     }
-    public function transferRolls(string $sourceId, string $targetId, int $amount){
-//     {
-//         $EntityManager = $GLOBALS['container']->get('entity');
-
-//         $EntityManager->beginTransaction(); 
-    
-//         try {
-//             $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$sourceId]);
+    public function transferRolls(string $sourceId, string $targetId, int $amount): PromiseInterface{
+        $cliente = MysqlSingleton::getInstance($this->loop);
+        $sql = 'SELECT rolls as roll from usuario where username=?';
+     return   $cliente->query($sql, [$sourceId])
+        ->then(function(MysqlResult $result) use($amount, $sourceId, $targetId, $cliente) {
+            $roll = $result->resultRows[0]['roll'];
+           
+            $roll-=$amount;
+            if($roll<=0){
+                return false;
+                            }
+            $update = $this->factory->newUpdate()
             
-//             $user->setRolls( -$amount);
-            
-//             if ($user->getRolls() < 0) {
-//                 $EntityManager->rollback(); 
-//                 return false;
-//             }
-            
-    
-//             $targetUser = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
-            
-//             if(!$targetUser){
-//                 $EntityManager->rollback(); 
-
-// return false;
-//             }
-//             $targetUser->setRolls($amount);
-    
-//             $EntityManager->flush();
-//             $EntityManager->commit(); 
-
-//             return true;
-//         } catch (\Exception $e) {
-//             $EntityManager->rollback(); 
-//             throw $e; 
-//         }
+            ->table('usuario')
+            ->set('rolls', $roll)
+            ->where('username=?')->getStatement();
+        return    $cliente->query($update, [$sourceId])
+            ->then(function(MysqlResult $result) use($amount, $targetId, $cliente){
+                $sql = 'UPDATE TABLE usuario SET rolls = rolls +? where username=?';
+                $cliente->query($sql, [$amount, $targetId]);
+                return true;
+            });
+        });
     }
-   
 
-
-    public function setAkumaFromAdmin(string $targetId, string $akuma)
+    public function setAkumaFromAdmin(string $targetId, string $akuma):PromiseInterface
     {
-//         $EntityManager = $GLOBALS['container']->get('entity');
+$sql = 'UPDATE TABLE Akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
+$cliente = MysqlSingleton::getInstance($this->loop);
+return $cliente->query($sql, [$targetId, $akuma]) ->then(fn(MysqlResult $r) => true)->catch(fn(Throwable $error)=> false);
 
-//         $user = $EntityManager->getRepository(Usuario::class)->findOneBy(['username'=>$targetId]);
-        
-//         $akuma = $EntityManager->getRepository(Akuma::class)->findOneBy(['name' => $akuma]);
-//         if(!$user || !$akuma){
-//             return false;
-//                     }   
-//                     $user->setAkuma($akuma);
-// $EntityManager->flush();
-// return true;
-
-
-//     }
     }}

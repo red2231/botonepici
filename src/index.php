@@ -5,7 +5,6 @@ namespace Discord\Proibida;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/redis.php';
 
-require_once __DIR__.'/teste.php';
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
@@ -18,11 +17,11 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Ban;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
+use Discord\Proibida\Entities\Akuma;
 use Discord\Proibida\Entities\Usuario;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Dotenv\Dotenv;
-use Exception;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
 $dotenv = Dotenv::createMutable(__DIR__ . '/../');
@@ -34,15 +33,16 @@ $discord = new Bot([
     'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT]
 ]);
 
-$discord->on('init', function (Bot $discord) {
+$discord->on('init', function () {
     echo 'Bot iniciou' . PHP_EOL;
 });
 static $processedMessages = [];
 
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
-    $id = $message->author->id;
-    $url = $message->author->avatar;
- 
+    $author = $message->author;
+    $id = $author->id;
+    $url = $author->avatar;
+   
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
@@ -58,45 +58,45 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $conteudo = $message->content;
 
     
-    // if(strcasecmp($conteudo, "+me")===0){
-    //     $akuma = $manager->GetAkumaByUserId($id);
-    //     $author = $message->author;
-    //     if($akuma){
-    //         $Embed = (new Embed($discord))
-    //         ->setTitle("A sua akuma: {$akuma->}")
-    //         ->setColor(getColor('purple'));
-    //         $message->reply(MessageBuilder::new()->addEmbed($Embed));
-    //     }else{
-    //         $message->reply("Você não tem akuma no mi");
-    //     }
-        
-
-    
+    if(strcasecmp($conteudo, "+me")===0){
+      $manager->GetAkumaByUserId($id)->then(function(?Akuma $akuma) use($discord,$message){
+        if($akuma){
+            $Embed = (new Embed($discord))
+            ->setTitle("A sua akuma: {$akuma->getName()}")
+            ->setColor(getColor('purple'));
+            $message->reply(MessageBuilder::new()->addEmbed($Embed));
+        }else{
+            $message->reply("Você não tem akuma no mi");
+        }
+      });
+    }
     if(str_starts_with($conteudo, '+set-akuma <@') && $message->member->getPermissions()->administrator){
         $targetId = extractId($conteudo);
         $akuma = extractAkuma($conteudo);
-        $setado = $manager->setAkumaFromAdmin($targetId, $akuma);
+        $manager->setAkumaFromAdmin($targetId, $akuma)->then(function(bool $setado) use($message, $targetId, $akuma){
+            if($setado ===true){
+                $message->reply("O usuário(a) <@{$targetId}> teve a akuma $akuma definida");
+                        }else{
+                            $message->reply("Usuário ou Akuma não foram achados!");
+                        }
+                
+        });
 
-        if($setado ===true){
-$message->reply("O usuário(a) <@{$targetId}> teve a akuma $akuma definida");
-        }else{
-            $message->reply("Usuário ou Akuma não foram achados!");
-        }
 
     }
-
-
 
 if(str_starts_with($conteudo, '+rollt <@')){
 $partes = explode(' ', $conteudo);
 $targetid = extractId($conteudo);
 $quantidade = extractAmount($conteudo);
-$transferiu = (new AkumaManager($discord->getLoop()))->transferRolls($id, $targetid, $quantidade);
-if($transferiu ===true){
-$message->reply("Transferência realizada com sucesso para <@{$targetid}>");
-}else{
-    $message->reply("Erro na transação! Talvez você não tenha rolls suficientes ou o usuário destino não exista!");
-}
+$manager->transferRolls($id, $targetid, $quantidade)->then(function(bool $transferiu) use($targetid, $message) {
+    if($transferiu ===true){
+        $message->reply("Transferência realizada com sucesso para <@{$targetid}>");
+        }else{
+            $message->reply("Erro na transação! Talvez você não tenha rolls suficientes ou o usuário destino não exista!");
+        }
+});
+
 }
 if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     $manager->hasRoll($id)->then(function (bool $bool) use ($discord, $id, $message, $manager) {
@@ -152,12 +152,6 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
     });
         }
 
-
-             
-    
-
-
-
     if (str_starts_with($conteudo, '+quemesta')) {
         $partes = explode(" ", $conteudo);
         if (count($partes) < 2) {
@@ -165,7 +159,7 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
             return;
         }
         $akumaName = implode(" ", array_slice($partes, 1));
-        $user = $manager->getAkumaUserOrNull($akumaName);
+       $manager->getAkumaUserOrNull($akumaName)->then(function($user)use($discord,$message){
         $Embed = new Embed($discord);
     
         if ($user instanceof Usuario) {
@@ -177,6 +171,8 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
             $message->reply($user === null ? "Ei, você está com sorte. Ninguém é detentor dessa akuma no momento" : "Não encontrei nenhuma akuma com esse nome");
         }
     
+       });
+   
 }
 
     if ((str_starts_with($conteudo, "+add-roll <@" ) || str_starts_with( $conteudo, "+add-roll <@!")) && $message->member->getPermissions()->administrator)
@@ -188,18 +184,20 @@ if(!is_numeric($quantidade) || !$id || $quantidade<=0){
 $message->reply("Quantidade ou mensagem inválida!");
 }
 else{
-$restantes = (new AkumaManager($discord->getLoop()))->setAmount($id, $quantidade);
-$message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id}> e agora este usuário possui $restantes rolls restantes!");
-}
-}
+ $manager->setAmount($id, $quantidade)->then(function(int $restantes)use($id, $message, $quantidade){
+    $message->channel->sendMessage("$quantidade rolls foram entregues a <@{$id}> e agora este usuário possui $restantes rolls restantes!");
+
+ });
+
+}}
 if(strcasecmp($conteudo, '+myrolls') ===0){
 $quantidade = (new AkumaManager($discord->getLoop()))->getRollsByUsername($id);
 $message->reply("Você possui $quantidade rolls restantes");
 }
-});
+    });
 
 $discord->on(Event::INTERACTION_CREATE, function (Interaction $interaction, Bot $discord) {
-    $akumaManager = (new AkumaManager($discord->getLoop()));
+    $akumaManager = new AkumaManager($discord->getLoop());
 if($interaction->type=== Interaction::TYPE_MESSAGE_COMPONENT){
 $id = $interaction->data->custom_id;
 $userId = $interaction->user->id;
