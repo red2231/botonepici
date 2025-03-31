@@ -3,7 +3,6 @@
 namespace Discord\Proibida;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/redis.php';
 
 use function Discord\getColor;
 use Discord\Builders\Components\ActionRow;
@@ -46,7 +45,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
-    if (count($processedMessages) >= 200) {
+    if (count($processedMessages) >= 600) {
         array_shift($processedMessages);
     }
 
@@ -86,6 +85,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     }
 
 if(str_starts_with($conteudo, '+rollt <@')){
+    
 $partes = explode(' ', $conteudo);
 $targetid = extractId($conteudo);
 $quantidade = extractAmount($conteudo);
@@ -146,9 +146,6 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
                     }
             });
                 });
-
-               
-    
     });
         }
 
@@ -222,27 +219,31 @@ else{
 });
 $discord->on(Event::GUILD_MEMBER_REMOVE, function(Member $member, Bot $discord){
 $userId = $member->user->id;
-$bool = (new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userId);
-if($bool===false){
+(new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userId)->then(function(false|string $bool)use($discord, $userId){
+    if($bool===false){
 
-return;
-}else{
-    $discord->getChannel('1319160352277008415')
-    ->sendMessage("O usuário <@{$userId}> saiu e deixou a akuma $bool livre! Ninguém mandou vazar!");
-}
+        return;
+        }else{
+            $discord->getChannel('1319160352277008415')
+            ->sendMessage("O usuário <@{$userId}> saiu e deixou a akuma $bool livre! Ninguém mandou vazar!");
+        }
+        
+});
 
 });
 $discord->on(Event::GUILD_BAN_ADD, function(Ban $ban, Bot $discord){
 $userID = $ban->user->id;
 
-$bool = (new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userID);
-if($bool===false){
+ (new AkumaManager($discord->getLoop()))->removeMemberAndGetAkumaName($userID)->then(function(false|string $bool) use($discord, $userID){
+    if($bool===false){
 
-return;
-}else{
-    $discord->getChannel('1319160352277008415')
-    ->sendMessage("O usuário <@{$userID}> foi banido e deixou a akuma $bool livre! Ninguém mandou desrespeitar as regras!");
-}
+        return;
+        }else{
+            $discord->getChannel('1319160352277008415')
+            ->sendMessage("O usuário <@{$userID}> foi banido e deixou a akuma $bool livre! Ninguém mandou desrespeitar as regras!");
+        }
+ });
+
 
 });
 

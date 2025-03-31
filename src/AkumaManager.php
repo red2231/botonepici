@@ -19,7 +19,7 @@ use function React\Promise\resolve;
 
 class AkumaManager
 {
-    private $previousAkuma = null;
+    private ?int $previousAkuma = null;
     private LoopInterface $loop;
     private QueryFactory $factory;
 public function __construct(LoopInterface $loop)
@@ -185,7 +185,7 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
     return false;
     }
     $getName = 'SELECT a.name as nome from Akuma INNER JOIN usuario ON a.usuario_id = usuario.id where usuario.username =? LIMIT 1';
-    $cliente->query($getName, [$username])
+ return   $cliente->query($getName, [$username])
     ->then(function(MysqlResult $result) use ($username, $cliente){
         $rows = $result->resultRows;
        $nome = $rows[0]['nome'];
@@ -199,14 +199,13 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
     public function getAkumaByUserId(string $userId): PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
-        $query = new QueryFactory('mysql');
+        $query = $this->factory;
         $select= $query->newSelect();
      $statement=   $select->cols(['a.*'])
-        ->from('Akuma a')
+        ->from('akuma a')
         ->join('inner', 'usuario as u', 'a.usuario_id=u.id' )
-        ->where('u.username = :username')
-        ->bindValue('username', $userId)->limit(1)->getStatement();
-       return $cliente->query($statement)
+        ->where('u.username = ?')->getStatement();
+       return $cliente->query($statement, [$userId])
         ->then(function(MysqlResult $result){
             $rows = $result->resultRows[0];
             $hydrator = new ClassMethodsHydrator;
