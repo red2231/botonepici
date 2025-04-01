@@ -158,21 +158,23 @@ return null;
     {
 
         $user = new Usuario;
-       $one = 'SELECT count(*) as count FROM akuma WHERE name = ?';
        $cliente = MysqlSingleton::getInstance($this->loop);
-      return  $cliente->query($one, [$name])->then(function(MysqlResult $result){
-            if($result[0]['count']===0){
-                return false;
-            }
-        });
-
-            $second= 'SELECT u.* FROM usuario u JOIN akuma a ON u.akuma_id = a.id WHERE a.name = ? LIMIT 1';
-$cliente->query($second, [$name])
+   
+                    $second= 'SELECT u.* FROM usuario u INNER JOIN akuma a ON u.id = a.usuario_id WHERE a.name = ? LIMIT 1';
+return $cliente->query($second, [$name])
 ->then(function(MysqlResult $result) use($user){
+    
+    $rows = $result->resultRows[0]??null;
+    if(!$rows){
+return $rows;
+    }
 $hydrator =new ClassMethodsHydrator;
-$user = $hydrator->hydrate($result->resultRows, $user);
+$user = $hydrator->hydrate($rows, $user);
 return $user;
 });
+        
+
+    
     }
 
     public function removeMemberAndGetAkumaName(string $username): PromiseInterface
@@ -199,18 +201,18 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
     public function getAkumaByUserId(string $userId): PromiseInterface
     {
         $cliente = MysqlSingleton::getInstance($this->loop);
-        $query = $this->factory;
-        $select= $query->newSelect();
-     $statement=   $select->cols(['a.*'])
-        ->from('akuma a')
-        ->join('inner', 'usuario as u', 'a.usuario_id=u.id' )
-        ->where('u.username = ?')->getStatement();
-       return $cliente->query($statement, [$userId])
+     $statement= 'SELECT a.* from akuma as a INNER JOIN usuario as u ON a.usuario_id = u.id where u.username = ?';   
+
+
+ return    $cliente->query($statement, [$userId])
         ->then(function(MysqlResult $result){
             $rows = $result->resultRows[0];
+            if(!$rows){
+return null;
+            }
             $hydrator = new ClassMethodsHydrator;
             $Akuma = new Akuma;
-         $Akuma=   $hydrator->hydrate($rows, $Akuma);
+         $Akuma= $hydrator->hydrate($rows, $Akuma);
 return $Akuma;
         });
     }

@@ -36,8 +36,12 @@ $discord->on('init', function () {
     echo 'Bot iniciou' . PHP_EOL;
 });
 static $processedMessages = [];
-
 $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) use (&$processedMessages) {
+    static $manager;
+    if(!$manager){
+        $manager = new AkumaManager($discord->loop);
+    }
+
     $author = $message->author;
     $id = $author->id;
     $url = $author->avatar;
@@ -49,7 +53,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         array_shift($processedMessages);
     }
 
-    $manager =new AkumaManager($discord->getLoop());
+ 
     $manager->cadastrar($id, $url);
 
     $processedMessages[$message->id] = true;
@@ -156,16 +160,16 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
             return;
         }
         $akumaName = implode(" ", array_slice($partes, 1));
-       $manager->getAkumaUserOrNull($akumaName)->then(function($user)use($discord,$message){
+       $manager->getAkumaUserOrNull($akumaName)->then(function(?Usuario $user)use($discord,$message){
         $Embed = new Embed($discord);
     
-        if ($user instanceof Usuario) {
+        if ($user) {
             $Embed->setColor(getColor('lightskyblue'))
                 ->setTitle("A akuma pertence a <@{$user->getUsername()}>")
                 ->setImage("{$user->getAvatarUrl()}");
             $message->reply(MessageBuilder::new()->addEmbed($Embed));
         } else {
-            $message->reply($user === null ? "Ei, você está com sorte. Ninguém é detentor dessa akuma no momento" : "Não encontrei nenhuma akuma com esse nome");
+            $message->reply( "Ei, você está com sorte. Ninguém é detentor dessa akuma no momento ou ela não existe na minha base de dados" );;
         }
     
        });
