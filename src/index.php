@@ -176,13 +176,13 @@ if (strcasecmp(trim($conteudo), "!akuma") === 0) {
    
 }
 
-    if ((str_starts_with($conteudo, "+add-roll <@" ) || str_starts_with( $conteudo, "+add-roll <@!")) && $message->member->getPermissions()->administrator)
+    if ((str_starts_with($conteudo, "+add-roll <@" ) || str_starts_with( $conteudo, "+add-roll <@!")))
     {
 $partes = explode(' ', $conteudo);
 $id = extractId($conteudo);
 $quantidade = $partes[2];
-if(!is_numeric($quantidade) || !$id || $quantidade<=0){
-$message->reply("Quantidade ou mensagem inválida!");
+if(!is_numeric($quantidade) || !$id || $quantidade<=0 || !$message->member->getPermissions()->administrator){
+$message->reply("Quantidade, mensagem inválida ou você não tem permissão de usar esse comando!");
 }
 else{
  $manager->setAmount($id, $quantidade)->then(function(int $restantes)use($id, $message, $quantidade){
@@ -192,8 +192,7 @@ else{
 
 }}
 if(strcasecmp($conteudo, '+myrolls') ===0){
-$quantidade = (new AkumaManager($discord->getLoop()))->getRollsByUsername($id);
-$message->reply("Você possui $quantidade rolls restantes");
+ $manager->getRollsByUsername($id)->then(fn (int $quantidade)=>$message->reply("Você possui $quantidade rolls restantes"));
 }
     });
 
@@ -247,8 +246,6 @@ $userID = $ban->user->id;
             ->sendMessage("O usuário <@{$userID}> foi banido e deixou a akuma $bool livre! Ninguém mandou desrespeitar as regras!");
         }
  });
-
-
 });
 
 $discord->run();

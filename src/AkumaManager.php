@@ -191,7 +191,7 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
     ->then(function(MysqlResult $result) use ($username, $cliente){
         $rows = $result->resultRows;
        $nome = $rows[0]['nome'];
-    $select= 'DELETE FROM usuario where username = ? ';
+    $select= 'DELETE FROM usuario where username = ?';
     $cliente->query($select, [$username]);
     return $nome;
     });
@@ -280,7 +280,7 @@ return resolve(false);
         ->where('username=?')->limit(1)->getStatement();
         return $cliente->query($builder, [$username])
         ->then(function(MysqlResult $result){
-            return $result[0]['roll'];
+            return (int) $result->resultRows[0]['roll'];
         });
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): PromiseInterface{
@@ -288,23 +288,19 @@ return resolve(false);
         $sql = 'SELECT rolls as roll from usuario where username=?';
      return   $cliente->query($sql, [$sourceId])
         ->then(function(MysqlResult $result) use($amount, $sourceId, $targetId, $cliente) {
-            $roll = $result->resultRows[0]['roll'];
+            $roll =(int) $result->resultRows[0]['roll'];
            
             $roll-=$amount;
-            if($roll<=0){
+            if($roll<0){
                 return false;
                             }
-            $update = $this->factory->newUpdate()
-            
-            ->table('usuario')
-            ->set('rolls', $roll)
-            ->where('username=?')->getStatement();
-        return    $cliente->query($update, [$sourceId])
+            $update = 'UPDATE usuario SET rolls = ? where username=?';
+        return    $cliente->query($update, [$roll, $sourceId])
             ->then(function(MysqlResult $result) use($amount, $targetId, $cliente){
-                $sql = 'UPDATE TABLE usuario SET rolls = rolls +? where username=?';
-                $cliente->query($sql, [$amount, $targetId]);
-                return true;
-            });
+                $sql = 'UPDATE usuario SET rolls = rolls +? where username=?';
+              $cliente->query($sql, [$amount, $targetId]);
+
+            })->then(fn()=> true );
         });
     }
 
