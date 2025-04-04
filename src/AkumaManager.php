@@ -27,7 +27,9 @@ public function __construct(LoopInterface $loop)
     $this->loop=$loop;
     $this->factory=  new QueryFactory('mysql');
 }
-   
+   private function getClient(){
+    return MysqlSingleton::getInstance($this->loop);
+   }
 public function getSomeAkuma(Discord $discord): PromiseInterface
 {
     $random = random_int(0, 100);
@@ -105,7 +107,7 @@ private function getImage():string
 
 
     public function cadastrar(string $userId, string $avatarUrl){
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         $cliente->query('INSERT IGNORE INTO usuario(username,avatarUrl,rolls ) values (?, ?, ?)', [$userId, $avatarUrl, 1])
         ->catch(function(\Throwable $ex){
 $ex->getMessage();
@@ -115,7 +117,7 @@ return null;
 }
    private function getByRaridade(string $raridade):PromiseInterface
     {
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         
         $hydrator = new ClassMethodsHydrator;
         $akuma = new Akuma;
@@ -143,7 +145,7 @@ return null;
     public  function associateUser(string $akuma, string $username):void
     {
         
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         $sql = 'UPDATE usuario 
         SET akuma_id = (SELECT id FROM akuma WHERE name = ? LIMIT 1)
         WHERE username = ?';
@@ -158,7 +160,7 @@ return null;
     {
 
         $user = new Usuario;
-       $cliente = MysqlSingleton::getInstance($this->loop);
+       $cliente = $this->getClient();
    
                     $second= 'SELECT u.* FROM usuario u INNER JOIN akuma a ON u.id = a.usuario_id WHERE a.name = ? LIMIT 1';
 return $cliente->query($second, [$name])
@@ -179,7 +181,7 @@ return $user;
 
     public function removeMemberAndGetAkumaName(string $username): PromiseInterface
     {      
-          $cliente =MysqlSingleton::getInstance($this->loop);
+          $cliente =$this->getClient();
         $exists = 'SELECT COUNT(*) as count from usuario where username =?';
  
 return $cliente->query($exists, [$username])->then(function(MysqlResult $result) use($username, $cliente) {
@@ -200,7 +202,7 @@ return $cliente->query($exists, [$username])->then(function(MysqlResult $result)
 
     public function getAkumaByUserId(string $userId): PromiseInterface
     {
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
      $statement= 'SELECT a.* from akuma as a INNER JOIN usuario as u ON a.usuario_id = u.id where u.username = ?';   
 
 
@@ -219,7 +221,7 @@ return $Akuma;
     public function hasRoll(string $username):PromiseInterface
     {
 
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         $select = $this->factory->newSelect();
         $sql = $select->cols(['rolls' =>'roll'])
         ->from('usuario')
@@ -242,7 +244,7 @@ return false;
         });
     }
     function setAmount(string $username, int $quantidade):PromiseInterface {
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         $sql= 'UPDATE usuario SET rolls = rolls + ? where username = ?';
         $cliente->query($sql, [$quantidade, $username]);
         $select = 'SELECT rolls as roll from usuario where username=? limit 1';
@@ -255,7 +257,7 @@ return false;
 
     public function hasAkuma(string $username):PromiseInterface
     {
-$cliente = MysqlSingleton::getInstance($this->loop);
+$cliente = $this->getClient();
 $sql = $this->factory->newSelect()->cols(['u.*'])
 ->from('usuario u')
 ->join('inner', 'akuma a', 'u.id = a.usuario_id')
@@ -263,9 +265,9 @@ $sql = $this->factory->newSelect()->cols(['u.*'])
 return $cliente->query($sql, [$username])
 ->then(function (MysqlResult $result){
 if($result===null){
-return resolve(false);
+return false;
 }else{
-    return resolve(true);
+    return true;
 }
 });
     
@@ -273,7 +275,7 @@ return resolve(false);
 
     public function getRollsByUsername(string $username):PromiseInterface
     {
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
 
         $builder = $this->factory->newSelect()->cols(['rolls' => 'roll'])
         ->from('usuario')
@@ -284,7 +286,7 @@ return resolve(false);
         });
     }
     public function transferRolls(string $sourceId, string $targetId, int $amount): PromiseInterface{
-        $cliente = MysqlSingleton::getInstance($this->loop);
+        $cliente = $this->getClient();
         $sql = 'SELECT rolls as roll from usuario where username=?';
      return   $cliente->query($sql, [$sourceId])
         ->then(function(MysqlResult $result) use($amount, $sourceId, $targetId, $cliente) {
@@ -306,8 +308,8 @@ return resolve(false);
 
     public function setAkumaFromAdmin(string $targetId, string $akuma):PromiseInterface
     {
-$sql = 'UPDATE Akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
-$cliente = MysqlSingleton::getInstance($this->loop);
+$sql = 'UPDATE akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
+$cliente = $this->getClient();
 return $cliente->query($sql, [$targetId, $akuma])->then(function(MysqlResult $r){
     $rows = $r->affectedRows;
     if($rows>0){

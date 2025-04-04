@@ -29,7 +29,7 @@ $token = $_ENV['TOKEN'];
 
 $discord = new Bot([
     'token'   => $token,
-    'intents' => [Intents::GUILD_MEMBERS, Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT]
+    'intents' => [Intents::GUILD_MEMBERS, Intents::AUTO_MODERATION_CONFIGURATION,Intents::AUTO_MODERATION_EXECUTION,Intents::GUILDS, Intents::GUILD_MESSAGES, Intents::MESSAGE_CONTENT, Intents::GUILD_PRESENCES]
 ]);
 
 $discord->on('init', function () {
@@ -73,9 +73,9 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         }
       });
     }
-    $permissions = $message->getMemberAttribute()->getPermissionsAttribute();
+        $is_admin = $message->member->getPermissions()->administrator;
 
-    if(str_starts_with($conteudo, '+set-akuma <@') && $permissions && $permissions->administrator){
+    if(str_starts_with($conteudo, '+set-akuma <@') && $is_admin){
         $targetId = extractId($conteudo);
         $akuma = extractAkuma($conteudo);
         $manager->setAkumaFromAdmin($targetId, $akuma)->then(function(bool $setado) use($message, $targetId, $akuma){
