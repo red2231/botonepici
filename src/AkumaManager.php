@@ -71,22 +71,22 @@ return 'Lendário';
        return $this->getByRaridade($Raridade)
         ->then(function(Akuma $akuma) use($embed){
             if($akuma->getRaridade()->value ==='Comum'){
-             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->getRaridade()->value} comum");
+             $embed->setTitle("Huh... Ok, isso é aceitável, você obteve uma {$akuma->getTipo()->value} comum");
              $embed->setColor(getColor('blue')); 
             }
             elseif($akuma->getRaridade()->value==='Raro'){
-          $embed->setTitle("Legal! Você conseguiu uma {$akuma->getRaridade()->value} do tipo raro!");
+          $embed->setTitle("Legal! Você conseguiu uma {$akuma->getTipo()->value} do tipo raro!");
                   $embed->setColor(getColor('yellow')); 
             }  
             elseif($akuma->getRaridade()->value==='Épico'){
-           $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->getRaridade()->value} épica!");
+           $embed->setTitle("Olha só o que temos aqui... Você conseguiu uma {$akuma->getTipo()->value} épica!");
            $embed->setColor(getColor('purple')); 
             }elseif($akuma->getRaridade()->value==='Lendário'){
-                     $embed->setTitle("Você conseguiu uma {$akuma->getRaridade()->value} lendária! Incrível!!");
+                     $embed->setTitle("Você conseguiu uma {$akuma->getTipo()->value} lendária! Incrível!!");
              $embed->setColor(getColor('pink')); 
             }
             else{
-                       $embed->setTitle("O que!? Você conseguiu uma {$akuma->getRaridade()->value} mítica?! Onde arranjou isso!?");
+                       $embed->setTitle("O que!? Você conseguiu uma {$akuma->getTipo()->value} mítica?! Onde arranjou isso!?");
              $embed->setColor(getColor('gold')); 
             }
             $embed->setDescription($akuma->getDescription());
@@ -306,8 +306,14 @@ return resolve(false);
 
     public function setAkumaFromAdmin(string $targetId, string $akuma):PromiseInterface
     {
-$sql = 'UPDATE TABLE Akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
+$sql = 'UPDATE Akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
 $cliente = MysqlSingleton::getInstance($this->loop);
-return $cliente->query($sql, [$targetId, $akuma]) ->then(fn(MysqlResult $r) => true)->catch(fn(Throwable $error)=> false);
+return $cliente->query($sql, [$targetId, $akuma])->then(function(MysqlResult $r){
+    $rows = $r->affectedRows;
+    if($rows>0){
+return true;
+    }
+    return false;
+});
 
     }}

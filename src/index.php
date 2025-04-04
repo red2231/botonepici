@@ -73,7 +73,9 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         }
       });
     }
-    if(str_starts_with($conteudo, '+set-akuma <@') && $message->member->getPermissions()->administrator){
+    $permissions = $message->getMemberAttribute()->getPermissionsAttribute();
+
+    if(str_starts_with($conteudo, '+set-akuma <@') && $permissions && $permissions->administrator){
         $targetId = extractId($conteudo);
         $akuma = extractAkuma($conteudo);
         $manager->setAkumaFromAdmin($targetId, $akuma)->then(function(bool $setado) use($message, $targetId, $akuma){
