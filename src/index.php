@@ -45,7 +45,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
     $author = $message->author;
     $id = $author->id;
     $url = $author->avatar;
-   
+    $is_admin = $message->member->getPermissions()->administrator;
     if (isset($processedMessages[$message->id]) || $message->author->bot) {
         return;
     }
@@ -73,7 +73,7 @@ $discord->on(Event::MESSAGE_CREATE, function (Message $message, Bot $discord) us
         }
       });
     }
-        $is_admin = $message->member->getPermissions()->administrator;
+     
 
     if(str_starts_with($conteudo, '+set-akuma <@') && $is_admin){
         $targetId = extractId($conteudo);

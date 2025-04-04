@@ -145,13 +145,15 @@ return null;
     public  function associateUser(string $akuma, string $username):void
     {
         
-        $cliente = $this->getClient();
-        $sql = 'UPDATE usuario 
-        SET akuma_id = (SELECT id FROM akuma WHERE name = ? LIMIT 1)
-        WHERE username = ?';
-        $cliente->query($sql, [$akuma, $username])->then(function(MysqlResult $result){
-            $rows = $result->affectedRows;
-            echo "Linhas afetadas: $rows";
+        $sql = 'UPDATE akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
+$cliente = $this->getClient();
+$first = 'UPDATE akuma 
+SET usuario_id = NULL 
+WHERE usuario_id = (SELECT id FROM usuario WHERE username = ?);
+';
+        $cliente->query($first, [$username])->then(function(MysqlResult $result) use ($cliente, $sql, $akuma, $username){
+            $cliente->query($sql, [$username, $akuma]);
+        
         });
  
 
@@ -310,12 +312,20 @@ return false;
     {
 $sql = 'UPDATE akuma SET usuario_id = (Select id from usuario where username=?) where name =?';
 $cliente = $this->getClient();
-return $cliente->query($sql, [$targetId, $akuma])->then(function(MysqlResult $r){
-    $rows = $r->affectedRows;
-    if($rows>0){
-return true;
-    }
-    return false;
-});
+$first = 'UPDATE akuma 
+SET usuario_id = NULL 
+WHERE usuario_id = (SELECT id FROM usuario WHERE username = ?);
+';
+return $cliente->query($first, [$targetId])->then(function(MysqlResult $r) use($cliente, $sql, $targetId, $akuma){
+    return $cliente->query($sql, [$targetId, $akuma])->then(function(MysqlResult $r){
+        $rows = $r->affectedRows;
+        if($rows>0){
+    return true;
+        }
+        return false;
+    });
+    
+        });
+}
 
-    }}
+}
