@@ -297,7 +297,7 @@ return false;
             $roll-=$amount;
             if($roll<0){
                 return false;
-                            }
+             }               
             $update = 'UPDATE usuario SET rolls = ? where username=?';
         return    $cliente->query($update, [$roll, $sourceId])
             ->then(function(MysqlResult $result) use($amount, $targetId, $cliente){
